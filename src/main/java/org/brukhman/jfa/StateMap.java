@@ -3,6 +3,7 @@ package org.brukhman.jfa;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,6 +64,37 @@ final class StateMap<T extends State<?>,S> {
 		if ( !this.states.contains(state) ) {
 			Map<S,T> map = new HashMap<S,T>();
 			this.transitions.put(state,map);
+		}
+	}
+	
+	/**
+	 * Remove a state from the map.
+	 * <p>
+	 * Note: This call is expensive because it has to remove all references to
+	 * the given state by iterating over all transitions.
+	 * 
+	 * @param state
+	 */
+	public final void remove( T state ) {
+		if ( state == null ) {
+			throw new IllegalArgumentException();
+		}
+		
+		if ( this.states.contains(state) ) {
+			// remove the state
+			this.transitions.remove(state);
+			
+			// remove all references to the state
+			for ( T st : this.states ) {
+				Map<S,T> map = this.transitions.get(st);
+				Iterator<Map.Entry<S,T>> iter = map.entrySet().iterator();
+				while ( iter.hasNext() ) {
+					Map.Entry<S,T> entry = iter.next();
+					if ( entry.getValue().equals(state)) {
+						iter.remove();
+					}
+				}
+			}
 		}
 	}
 	

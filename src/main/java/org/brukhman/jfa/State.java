@@ -12,6 +12,10 @@ public class State<T> {
 	/** The name of the state. */
 	private final T name;
 	
+	/** State qualifiers. */
+	private boolean isInitial;
+	private boolean isFinal;
+	
 	/**
 	 * Create a new instance.
 	 * 
@@ -26,6 +30,44 @@ public class State<T> {
 	 */
 	public final T getName() {
 		return this.name;
+	}
+	
+	/**
+	 * Returns true if and only if this is an initial
+	 * state.
+	 * 
+	 * @return
+	 */
+	public final boolean isInitial() {
+		return this.isInitial;
+	}
+	
+	/**
+	 * Set this state to be an initial state.
+	 * 
+	 * @param isInitial
+	 */
+	final void setInitial( boolean isInitial ) {
+		this.isInitial = isInitial;
+	}
+	
+	/**
+	 * Returns true if and only if this is a final
+	 * state.
+	 * 
+	 * @return
+	 */
+	public final boolean isFinal() {
+		return this.isFinal;
+	}
+	
+	/**
+	 * Set this state to be an final state.
+	 * 
+	 * @param isFinal
+	 */
+	final void setFinal( boolean isFinal ) {
+		this.isFinal = isFinal;
 	}
 
 	@Override
