@@ -1,10 +1,12 @@
 package org.brukhman.jfa;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * 
+ * The base for constructing NFAs.
+ *     
  * @author jbrukh
  *
  */
@@ -12,14 +14,15 @@ abstract class AbstractAutomaton<T extends State<?>> implements Automaton {
 
 	private T 		initialState;
 	private Set<T> 	finalStates;
-	private Set<T>	states;
+	private StateMap<T,Character> transitions;
+	
 
 	/**
 	 * Create a new instance.
 	 */
 	public AbstractAutomaton() {
-		this.finalStates = new HashSet<T>();
-		this.states 		= new HashSet<T>();
+		this.finalStates 	= new HashSet<T>();
+		this.transitions    = new StateMap<T, Character>();
 	}
 	
 	/**

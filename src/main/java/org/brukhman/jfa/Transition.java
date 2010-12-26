@@ -1,6 +1,5 @@
 package org.brukhman.jfa;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -8,8 +7,8 @@ public final class Transition<T extends State<?>> {
 
 	// FIELDS //
 	
-	private final T state;
-	private final Set<Character> symbols;
+	private final T 				state;
+	private final Set<Character> 	symbols;
 	
 	/**
 	 * Create a new instance.
