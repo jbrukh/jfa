@@ -21,7 +21,7 @@ final class StateMap<T extends State<?>,S> {
 	
 	private final Map<T,Map<S,T>> transitions;
 	private final Set<T>		  states;
-	private final Set<S>		  alphabet;
+	//private final Set<S>		  alphabet;
 	
 	/**
 	 * Create a new instance.
@@ -29,7 +29,7 @@ final class StateMap<T extends State<?>,S> {
 	public StateMap() {
 		this.transitions = new HashMap<T,Map<S,T>>();
 		this.states = Collections.unmodifiableSet(this.transitions.keySet());
-		this.alphabet = new HashSet<S>();
+		//this.alphabet = new HashSet<S>();
 	}
 	
 	/**
@@ -45,7 +45,7 @@ final class StateMap<T extends State<?>,S> {
 		}
 		
 		add(fromState);
-		alphabet.add(symbol);
+		//alphabet.add(symbol);
 		Map<S,T> map = transitions.get(fromState);
 		map.put(symbol, toState);
 		
@@ -96,6 +96,7 @@ final class StateMap<T extends State<?>,S> {
 				}
 			}
 		}
+		else throw new IllegalArgumentException("State must be in the map.");
 	}
 	
 	/**

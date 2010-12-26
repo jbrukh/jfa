@@ -56,6 +56,63 @@ abstract class NFAutomaton implements Automaton {
 	 */
 	public final void removeState( NFAState state ) {
 		this.stateMap.remove(state);
+		
+		if ( state.isInitial() ) {
+			state.setInitial(false);
+			clearInitialState();
+		}
 	}
-
+	
+	/**
+	 * Make a state an initial state.  The state must be in the machine.  If an initial state is
+	 * already set, it is cleared.
+	 * 
+	 * @param state
+	 */
+	public final void makeInitial( NFAState state ) {
+		if ( !stateMap.getStates().contains(state) ) {
+			throw new IllegalArgumentException("The state must be in the machine.");
+		}
+		clearInitialState();
+		state.setInitial(true);
+		initialState = state;
+	}
+	
+	/**
+	 * Make a state a final state.  The state must be in the machine.  This method has no effect
+	 * if the state is already final.
+	 * 
+	 * @param state
+	 */
+	public final void makeFinal( NFAState state ) {
+		if ( !stateMap.getStates().contains(state) ) {
+			throw new IllegalArgumentException("The state must be in the machine.");
+		}
+		state.setFinal(true);
+		finalStates.add(state);
+	}
+	
+	/**
+	 * Clear the initial state.
+	 * 
+	 */
+	public final void clearInitialState() {
+		if ( initialState != null ) {
+			initialState.setInitial(false);
+			initialState = null;
+		}
+	}
+	
+	/**
+	 * Revert a final state to a regular state.
+	 * 
+	 * @param state
+	 */
+	public final void clearFinalState( NFAState state ) {
+		if ( !stateMap.getStates().contains(state) || ! finalStates.contains(state)) {
+			throw new IllegalArgumentException("The state must be a final state in the machine.");
+		}
+		finalStates.remove(state);
+		state.setFinal(false);
+	}
 }
