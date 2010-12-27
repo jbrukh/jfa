@@ -1,6 +1,7 @@
 package org.brukhman.jfa;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * A finite automaton.
@@ -8,21 +9,21 @@ import java.util.Collection;
  * @author jbrukh
  *
  */
-public interface Automaton {
+public interface Automaton<T extends State<?>> {
 	
 	/**
 	 * Return the initial state.
 	 * 
 	 * @return
 	 */
-	public abstract State<?> getInitialState();
+	public abstract T getInitialState();
 	
 	/**
 	 * Return the final states.
 	 * 
 	 * @return
 	 */
-	public abstract Collection<State<?>> getFinalStates();
+	public abstract Set<T> getFinalStates();
 	
 	/**
 	 * Runs the automaton on the given input.

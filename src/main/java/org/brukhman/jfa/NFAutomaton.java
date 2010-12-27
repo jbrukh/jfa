@@ -1,7 +1,8 @@
 package org.brukhman.jfa;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Set;
  * @author jbrukh
  *
  */
-abstract class NFAutomaton implements Automaton {
+abstract class NFAutomaton implements Automaton<NFAState> {
 
 	// FIELDS //
 	
@@ -75,7 +76,7 @@ abstract class NFAutomaton implements Automaton {
 		}
 		clearInitialState();
 		state.setInitial(true);
-		initialState = state;
+		this.initialState = state;
 	}
 	
 	/**
@@ -85,11 +86,11 @@ abstract class NFAutomaton implements Automaton {
 	 * @param state
 	 */
 	public final void makeFinal( NFAState state ) {
-		if ( !stateMap.getStates().contains(state) ) {
+		if ( !this.stateMap.getStates().contains(state) ) {
 			throw new IllegalArgumentException("The state must be in the machine.");
 		}
 		state.setFinal(true);
-		finalStates.add(state);
+		this.finalStates.add(state);
 	}
 	
 	/**
@@ -97,9 +98,9 @@ abstract class NFAutomaton implements Automaton {
 	 * 
 	 */
 	public final void clearInitialState() {
-		if ( initialState != null ) {
-			initialState.setInitial(false);
-			initialState = null;
+		if ( this.initialState != null ) {
+			this.initialState.setInitial(false);
+			this.initialState = null;
 		}
 	}
 	
@@ -109,10 +110,33 @@ abstract class NFAutomaton implements Automaton {
 	 * @param state
 	 */
 	public final void clearFinalState( NFAState state ) {
-		if ( !stateMap.getStates().contains(state) || ! finalStates.contains(state)) {
+		if ( !this.stateMap.getStates().contains(state) || ! finalStates.contains(state)) {
 			throw new IllegalArgumentException("The state must be a final state in the machine.");
 		}
-		finalStates.remove(state);
+		this.finalStates.remove(state);
 		state.setFinal(false);
 	}
+	
+	@Override
+	public boolean compute(String input) {
+		if ( input == null ) {
+			throw new IllegalArgumentException();
+		}
+		if ( input.equals("") ) {
+			if ( initialState.isFinal() ) {
+				return true;
+			}
+		}
+	}
+
+	@Override
+	public Set<NFAState> getFinalStates() {
+		return Collections.unmodifiableSet(this.finalStates);
+	}
+
+	@Override
+	public NFAState getInitialState() {
+		return this.initialState;
+	}
+
 }
