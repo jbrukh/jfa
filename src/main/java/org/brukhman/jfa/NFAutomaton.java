@@ -20,6 +20,7 @@ abstract class NFAutomaton implements Automaton<NFAState> {
 	private StateMap<NFAState,Character> 	stateMap;
 	
 	private int								count;
+	private NFAState						currentState;
 	
 	/**
 	 * Create a new instance.
@@ -120,13 +121,16 @@ abstract class NFAutomaton implements Automaton<NFAState> {
 	@Override
 	public boolean compute(String input) {
 		if ( input == null ) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Input must not be null.");
 		}
-		if ( input.equals("") ) {
-			if ( initialState.isFinal() ) {
-				return true;
-			}
+		
+		// empty string case
+		if ( input == "" ) {
+			// TODO
 		}
+		
+		char[] inputArray = input.toCharArray();
+		
 	}
 
 	@Override

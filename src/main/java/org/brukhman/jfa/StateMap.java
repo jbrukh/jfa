@@ -1,5 +1,6 @@
 package org.brukhman.jfa;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,27 +8,37 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Multiset.Entry;
+import com.google.common.collect.SetMultimap;
+
 /**
  * A map that holds FA transitions.
  * 
  * @author jbrukh
  *
  * @param <T>	the type of state that is available
- * @param <S>	the transition symbol
+ * @param <Character>	the transition symbol
  */
-final class StateMap<T extends State<?>,S> {
+final class StateMap<T extends State<?>> {
 
 	// FIELDS //
 	
-	private final Map<T,Map<S,T>> transitions;
-	private final Set<T>		  states;
-	//private final Set<S>		  alphabet;
+	private final Map<T,Multimap<Character,T>> 	transitions;
+	private final Set<T>		  				states;
+	
+	/** The empty symbol. */
+	private final static Character				EPSILON 		= new Character('\0');
 	
 	/**
 	 * Create a new instance.
 	 */
 	public StateMap() {
-		this.transitions = new HashMap<T,Map<S,T>>();
+		this.transitions = new HashMap<T,Multimap<Character,T>>();
 		this.states = Collections.unmodifiableSet(this.transitions.keySet());
 		//this.alphabet = new HashSet<S>();
 	}
@@ -39,16 +50,10 @@ final class StateMap<T extends State<?>,S> {
 	 * @param symbol
 	 * @param toState
 	 */
-	public final void add( T fromState, S symbol, T toState ) {
-		if ( fromState == null || toState == null || symbol == null ) {
-			throw new IllegalArgumentException();
-		}
-		
+	public final void add( T fromState, Character symbol, T toState ) {
+		Preconditions.checkArgument( fromState!=null && symbol!=null && toState!=null );
 		add(fromState);
-		//alphabet.add(symbol);
-		Map<S,T> map = transitions.get(fromState);
-		map.put(symbol, toState);
-		
+		transitions.get(fromState).put(symbol, toState);		
 	}
 	
 	/**
@@ -57,12 +62,10 @@ final class StateMap<T extends State<?>,S> {
 	 * @param state
 	 */
 	public final void add( T state ) {
-		if ( state == null ) {
-			throw new IllegalArgumentException();
-		}
+		Preconditions.checkArgument( state!=null );
 		
 		if ( !this.states.contains(state) ) {
-			Map<S,T> map = new HashMap<S,T>();
+			Multimap<Character,T> map = HashMultimap.create();
 			this.transitions.put(state,map);
 		}
 	}
@@ -76,9 +79,7 @@ final class StateMap<T extends State<?>,S> {
 	 * @param state
 	 */
 	public final void remove( T state ) {
-		if ( state == null ) {
-			throw new IllegalArgumentException();
-		}
+		Preconditions.checkArgument( state!=null );
 		
 		if ( this.states.contains(state) ) {
 			// remove the state
@@ -86,10 +87,10 @@ final class StateMap<T extends State<?>,S> {
 			
 			// remove all references to the state
 			for ( T st : this.states ) {
-				Map<S,T> map = this.transitions.get(st);
-				Iterator<Map.Entry<S,T>> iter = map.entrySet().iterator();
+				Multimap<Character,T> map = this.transitions.get(st);
+				Iterator<Map.Entry<Character, T>> iter = map.entries().iterator();
 				while ( iter.hasNext() ) {
-					Map.Entry<S,T> entry = iter.next();
+					Map.Entry<Character,T> entry = iter.next();
 					if ( entry.getValue().equals(state)) {
 						iter.remove();
 					}
@@ -107,16 +108,58 @@ final class StateMap<T extends State<?>,S> {
 	 * @param symbol
 	 * @return
 	 */
-	public final T transition( T fromState, S symbol ) {
-		if ( fromState == null || symbol == null ) {
-			throw new IllegalArgumentException();
-		}
-		Map<S,T> map = transitions.get(fromState);
-		if ( map == null ) {
-			return null;
-		}
+	public final Set<T> transition( T fromState, Character symbol ) {
+		Preconditions.checkArgument( fromState != null && symbol != null );
+		Preconditions.checkState( !Objects.equal(symbol, EPSILON), "Attempting to transition on Epsilon." );
+
+		Set<T> toStates = new HashSet<T>();
 		
-		return map.get(symbol);
+		// add the usual transitions
+		toStates.addAll(
+				startingAt(fromState).get(symbol)
+		);
+		
+	
+		
+		return Collections.unmodifiableSet(toStates);
+	}
+	
+	private final Set<T> epsilonTransition( Set<T> fromState ) {
+		Set<T> toStates = new HashSet<T>();
+		toStates.addAll(
+				startingAt(fromState).get(EPSILON)
+		);
+		toStates.addAll(
+				epsilonTransition(toStates)
+		);
+		return Collections.unmodifiableSet(toStates);
+	}
+	
+	private final Multimap<Character, T> startingAt( T state ) {
+		return this.transitions.get(state);
+	}
+	
+	/**
+	 * Transition one set of states given a transition symbol.  This is useful in NFAs
+	 * for getting closures of a state or set of states.
+	 * 
+	 * @param fromStates
+	 * @param symbol
+	 * @return
+	 */
+	public final Set<T> transition( Set<T> fromStates, Character symbol ) {
+		Preconditions.checkArgument( fromStates != null && symbol != null );
+
+		Set<T> toStates = new HashSet<T>();
+		for ( T state : fromStates ) {
+			if ( state == null ) continue;
+			
+			// add all states reachable from fromStates by the symbol
+			toStates.addAll( this.transitions.get(state).get(symbol) );
+			
+			//
+		}
+		return Collections.unmodifiableSet(toStates);
 	}
 	
 	/**
@@ -135,4 +178,5 @@ final class StateMap<T extends State<?>,S> {
 	public final void clear() {
 		this.transitions.clear();
 	}
+	
 }
