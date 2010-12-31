@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
  * @author jbrukh
  *
  */
-public class NFAutomaton implements Automaton<NFAState> {
+class NFAutomaton implements Automaton<NFAState> {
 
 	// FIELDS //
 
@@ -127,6 +127,17 @@ public class NFAutomaton implements Automaton<NFAState> {
 		}
 		this.finalStates.remove(state);
 		state.setFinal(false);
+	}
+	
+	/**
+	 * Add a transition to the automaton.
+	 * 
+	 * @param fromState
+	 * @param symbol
+	 * @param toState
+	 */
+	public final void addTransition( NFAState fromState, Character symbol, NFAState toState ) {
+		stateMap.add(fromState,symbol,toState);
 	}
 
 	@Override

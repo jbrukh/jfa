@@ -95,5 +95,8 @@ public class State<T> {
 		return true;
 	}
 	
+	public String toString() {
+		return "State-"+String.valueOf(name);
+	}
 	
 }
