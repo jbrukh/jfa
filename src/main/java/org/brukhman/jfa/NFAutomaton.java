@@ -3,11 +3,15 @@ package org.brukhman.jfa;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Table;
 
 /**
  * The base for constructing NFAs.
@@ -24,8 +28,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	private StateMap<NFAState> 				stateMap;
 
 	private int								count;
-	private NFAState						currentState;
-
+	
 	private final static Predicate<State<?>> isFinalPredicate = new Predicate<State<?>>() {
 		@Override
 		public boolean apply(State<?> state) {
@@ -77,15 +80,23 @@ class NFAutomaton implements Automaton<NFAState> {
 	}
 
 	/**
+	 * Returns the alphabet of this NFA.
+	 * 
+	 * @return
+	 */
+	public final Set<Character> getAlphabet() {
+		return this.stateMap.getAlphabet();
+	}
+	
+	/**
 	 * Make a state an initial state.  The state must be in the machine.  If an initial state is
 	 * already set, it is cleared.
 	 * 
 	 * @param state
 	 */
 	public final void makeInitial( NFAState state ) {
-		if ( !stateMap.getStates().contains(state) ) {
-			throw new IllegalArgumentException("The state must be in the machine.");
-		}
+		Preconditions.checkArgument(this.stateMap.getStates().contains(state),
+				"The state must be in the machine.");
 		clearInitialState();
 		state.setInitial(true);
 		this.initialState = state;
@@ -98,9 +109,8 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * @param state
 	 */
 	public final void makeFinal( NFAState state ) {
-		if ( !this.stateMap.getStates().contains(state) ) {
-			throw new IllegalArgumentException("The state must be in the machine.");
-		}
+		Preconditions.checkArgument(this.stateMap.getStates().contains(state),
+				"The state must be in the machine.");
 		state.setFinal(true);
 		this.finalStates.add(state);
 	}
@@ -122,9 +132,8 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * @param state
 	 */
 	public final void clearFinalState( NFAState state ) {
-		if ( !(this.stateMap.getStates().contains(state) && finalStates.contains(state))) {
-			throw new IllegalArgumentException("The state must be a final state in the machine.");
-		}
+		Preconditions.checkArgument(this.stateMap.getStates().contains(state),"The state must be in the machine.");
+		Preconditions.checkArgument(finalStates.contains(state),"The state must be a final state.");
 		this.finalStates.remove(state);
 		state.setFinal(false);
 	}
@@ -140,6 +149,46 @@ class NFAutomaton implements Automaton<NFAState> {
 		stateMap.add(fromState,symbol,toState);
 	}
 
+	final DFAutomaton toDFA() {
+		
+		Set<Character> alphabet = getAlphabet();
+		
+		// figure out what the states are going to be
+		// by performing a BFS
+		Set<DFAState> newStates = new HashSet<DFAState>();
+		
+		// the new DFA transitions table
+		Table<DFAState, Character, DFAState> transitions = HashBasedTable.create();
+		
+		// start at the epsilon-closure of the initial state
+		DFAState currentState = new DFAState(stateMap.epsilonTransition(this.initialState));
+		Queue<DFAState> queue = new LinkedList<DFAState>();
+	
+		queue.add(currentState);
+		newStates.add(currentState);
+				
+		while ( !queue.isEmpty() ) {
+			currentState = queue.remove();
+			
+			for ( Character symbol : alphabet ) {
+				DFAState toState = new DFAState(
+										stateMap.transition(currentState.getName(), symbol)
+									);
+				
+				// add it if we haven't seen it before
+				if ( !newStates.contains(toState) ) {
+					queue.add(toState);
+					newStates.add(toState);
+				}
+				
+				// add the transition
+				transitions.put(currentState, symbol, toState);
+			}
+		}
+
+		return null;
+	}
+	
 	@Override
 	public boolean compute(String input) {
 		Preconditions.checkNotNull(input);
@@ -169,4 +218,8 @@ class NFAutomaton implements Automaton<NFAState> {
 		return this.initialState;
 	}
 
+	@Override
+	public Set<NFAState> getStates() {
+		return this.stateMap.getStates();
+	}
 }

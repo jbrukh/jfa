@@ -5,6 +5,8 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.experimental.theories.Theory;
 
+import com.google.common.collect.Sets;
+
 import junit.framework.TestCase;
 
 public class NFAutomatonTest extends TestCase {
@@ -47,6 +49,18 @@ public class NFAutomatonTest extends TestCase {
 			input = input+"e";
 			assertTrue(machine.compute(input));
 		}
+	}
+	
+	public void testGetAlphabet() {
+		Set<Character> alphabet = machine.getAlphabet();
+		Set<Character> expected = Sets.newHashSet('a','b','e');
+		assertNotNull(alphabet);
+		assertTrue(alphabet.size() == expected.size());
+		assertTrue(alphabet.equals(expected));
+	}
+	
+	public void testToDFA() {
+		machine.toDFA();
 	}
 	
 	/**

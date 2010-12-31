@@ -8,14 +8,14 @@ import java.util.Set;
  * @author jbrukh
  *
  */
-public class DFAState extends State<Set<Integer>>{
+public class DFAState extends State<Set<NFAState>>{
 
 	/**
 	 * Create a new instance.
 	 * 
 	 * @param name
 	 */
-	public DFAState( Set<Integer> name ) {
+	public DFAState( Set<NFAState> name ) {
 		super(name);
 	}
 }

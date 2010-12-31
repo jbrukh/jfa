@@ -12,6 +12,13 @@ import java.util.Set;
 public interface Automaton<T extends State<?>> {
 	
 	/**
+	 * Returns the set of states.  This set should be immutable.
+	 * 
+	 * @return
+	 */
+	public abstract Set<T> getStates();
+	
+	/**
 	 * Return the initial state.
 	 * 
 	 * @return

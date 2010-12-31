@@ -135,7 +135,23 @@ final class StateMap<StateType extends State<?>> {
 		return Collections.unmodifiableSet(toStates);
 	}
 
-	
+	/**
+	 * Returns the alphabet that this machine operates on.
+	 * <p>
+	 * Note: This operation is <code>O(n)</code>, where <code>n</code> 
+	 * is the number of states in the machine.
+	 * 
+	 * @return
+	 */
+	public final Set<Character> getAlphabet() {
+		Set<Character> alphabet = new HashSet<Character>();
+		for ( StateType state : this.states ) {
+			alphabet.addAll( startingAt(state).keySet() );
+		}
+		// epsilon is assumed
+		alphabet.remove(EPSILON);
+		return alphabet;
+	}
 	
 	private final Multimap<Character, StateType> startingAt( StateType state ) {
 		return this.transitions.get(state);
