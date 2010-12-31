@@ -10,5 +10,15 @@ import java.util.Set;
  *
  */
 public final class Automatons {
+
+	private final static NFAutomaton EMPTY_STRING;
 	
+	static {
+		// create the EMPTY_STRING
+		EMPTY_STRING = new NFAutomaton();
+		NFAState initial = EMPTY_STRING.addState();
+		EMPTY_STRING.makeInitial(initial);
+		EMPTY_STRING.makeFinal(initial);
+	
+	}
 }
