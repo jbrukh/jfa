@@ -122,7 +122,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * @param state
 	 */
 	public final void clearFinalState( NFAState state ) {
-		if ( !this.stateMap.getStates().contains(state) || ! finalStates.contains(state)) {
+		if ( !(this.stateMap.getStates().contains(state) && finalStates.contains(state))) {
 			throw new IllegalArgumentException("The state must be a final state in the machine.");
 		}
 		this.finalStates.remove(state);
