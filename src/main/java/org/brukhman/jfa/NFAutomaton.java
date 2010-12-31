@@ -1,5 +1,7 @@
 package org.brukhman.jfa;
 
+import static org.brukhman.jfa.Symbols.*;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
@@ -41,7 +44,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * Create a new instance.
 	 */
 	public NFAutomaton() {
-		this.finalStates 	= new HashSet<NFAState>();
+		this.finalStates 	= Sets.newHashSet();
 		this.stateMap    	= new StateMap<NFAState>();		
 		this.count			= 0;
 	}
@@ -165,7 +168,7 @@ class NFAutomaton implements Automaton<NFAState> {
 		
 		// start at the epsilon-closure of the initial state
 		DFAState currentState = new DFAState(stateMap.epsilonTransition(this.initialState));
-		Queue<DFAState> queue = new LinkedList<DFAState>();
+		Queue<DFAState> queue = Lists.newLinkedList();
 		
 		// if the start state is final...
 		if ( Iterables.any(currentState.getName(), NFAutomaton.isFinalPredicate) ) {
@@ -211,14 +214,9 @@ class NFAutomaton implements Automaton<NFAState> {
 	@Override
 	public boolean compute(String input) {
 		Preconditions.checkNotNull(input);
-
-		// empty string case
-		if ( input.equals("") ) {
-			return Iterables.any( this.stateMap.epsilonTransition(this.initialState), isFinalPredicate );
-		}
-
+		
 		char[] inputArray = input.toCharArray();
-		Set<NFAState> currentStates = Collections.singleton(this.initialState);
+		Set<NFAState> currentStates = this.stateMap.epsilonTransition(this.initialState);
 
 		for ( char inputChar : inputArray ) {
 			currentStates = stateMap.transition(currentStates, inputChar);
