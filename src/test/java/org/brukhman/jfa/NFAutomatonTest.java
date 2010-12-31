@@ -39,6 +39,10 @@ public class NFAutomatonTest extends TestCase {
 	 * Test that this NFAutomaton accepts and rejects appropriate strings.
 	 */
 	public void testCompute() {
+		testCompute(machine);
+	}
+	
+	private final void testCompute( Automaton machine ) {
 		assertTrue( machine.compute("") );
 		assertTrue( machine.compute("ab") );
 		assertTrue( machine.compute("abe") );
@@ -60,7 +64,7 @@ public class NFAutomatonTest extends TestCase {
 	}
 	
 	public void testToDFA() {
-		machine.toDFA();
+		testCompute(machine.toDFA());
 	}
 	
 	/**
@@ -93,10 +97,10 @@ public class NFAutomatonTest extends TestCase {
 	/**
 	 * Test what happens when you attempt to clear a non-final state.
 	 */
-	@Test(expected=IllegalArgumentException.class)
-	public void testClearFinalNotFinal() {
-		machine.clearFinalState(state0);
-	}
+//	@Test(expected=IllegalArgumentException.class)
+//	public void testClearFinalNotFinal() {
+//		machine.clearFinalState(state0);
+//	}
 	
 	/**
 	 * Test the clearing of a final state, and the 

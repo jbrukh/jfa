@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
 /**
@@ -155,7 +156,9 @@ class NFAutomaton implements Automaton<NFAState> {
 		
 		// figure out what the states are going to be
 		// by performing a BFS
-		Set<DFAState> newStates = new HashSet<DFAState>();
+		Set<DFAState> newStates = Sets.newHashSet();
+		Set<DFAState> finalStates = Sets.newHashSet();
+		DFAState      initialState;
 		
 		// the new DFA transitions table
 		Table<DFAState, Character, DFAState> transitions = HashBasedTable.create();
@@ -163,7 +166,15 @@ class NFAutomaton implements Automaton<NFAState> {
 		// start at the epsilon-closure of the initial state
 		DFAState currentState = new DFAState(stateMap.epsilonTransition(this.initialState));
 		Queue<DFAState> queue = new LinkedList<DFAState>();
+		
+		// if the start state is final...
+		if ( Iterables.any(currentState.getName(), NFAutomaton.isFinalPredicate) ) {
+			finalStates.add(currentState);
+		}
 	
+		// 
+		initialState = currentState;
+
 		queue.add(currentState);
 		newStates.add(currentState);
 				
@@ -174,6 +185,12 @@ class NFAutomaton implements Automaton<NFAState> {
 				DFAState toState = new DFAState(
 										stateMap.transition(currentState.getName(), symbol)
 									);
+				
+				// if any of these states are final, then
+				// this new state is final as well
+				if ( Iterables.any(toState.getName(), NFAutomaton.isFinalPredicate) ) {
+					finalStates.add(toState);
+				}
 				
 				// add it if we haven't seen it before
 				if ( !newStates.contains(toState) ) {
@@ -186,7 +203,9 @@ class NFAutomaton implements Automaton<NFAState> {
 			}
 		}
 
-		return null;
+		DFAutomaton newAutomaton = new DFAutomaton(transitions, initialState, finalStates);
+		return newAutomaton;
+		
 	}
 	
 	@Override

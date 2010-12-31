@@ -1,12 +1,10 @@
 package org.brukhman.jfa;
 
-import java.util.Collection;
+import static org.brukhman.jfa.Symbols.*;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 /**
@@ -19,12 +17,11 @@ public class DFAutomaton implements Automaton<DFAState> {
 	
 	// FIELDS //
 	
-	private final Set<DFAState> states;
-	private final Set<Character> alphabet;
-	
 	private final DFAState			initialState;
 	private final Set<DFAState>		finalStates;
-	
+	private final Set<DFAState> 	states; 
+	private final Set<Character> 	alphabet;
+
 	private final Table<DFAState, Character, DFAState>
 									transitions;
 	/**
@@ -35,28 +32,42 @@ public class DFAutomaton implements Automaton<DFAState> {
 	 * @param initialState
 	 * @param finalStates
 	 */
-	public DFAutomaton( Collection<DFAState> states, 
-						Collection<Character> alphabet, 
+	public DFAutomaton( Table<DFAState, Character, DFAState> transitions, 
 						DFAState initialState, 
-						DFAState... finalStates ) {
+						Set<DFAState> finalStates ) {
 		
-		Preconditions.checkArgument( states!=null && states.size()>0, "Must have states." );
-		Preconditions.checkArgument( alphabet!=null, "Must have an alphabet.");
+		Preconditions.checkArgument( transitions!=null );
 		Preconditions.checkArgument( initialState != null, "Must have an initial state." );
+		Preconditions.checkArgument( finalStates != null );
 		
-		this.states = Collections.unmodifiableSet(
-								new HashSet<DFAState>(states)
-					  );
-		this.alphabet = Collections.unmodifiableSet(
-								new HashSet<Character>(alphabet)
-					  );
-		
+		this.states = Collections.unmodifiableSet(transitions.rowKeySet());
+		this.alphabet = Collections.unmodifiableSet(transitions.columnKeySet());
+		this.transitions = transitions;
 		this.initialState = initialState;
+		this.finalStates = Collections.unmodifiableSet(finalStates);		
 		
-		Set<DFAState> finalSet = new HashSet<DFAState>();
-		Collections.addAll(finalSet,finalStates);
-		this.finalStates = Collections.unmodifiableSet(finalSet);		
-		this.transitions = HashBasedTable.create();
+		// make sure this here table is legit
+		checkState();
+	}
+	
+	/**
+	 * Check that the inputs are legit.
+	 */
+	private final void checkState() {
+		// check that states and alphabet exist
+		Preconditions.checkState( states.size()>0 && alphabet.size()>0, "No states or no alphabet.");
+		
+		// check that every state has every transition
+		for ( DFAState state : states ) {
+			for ( Character symbol : alphabet ) {
+				Preconditions.checkState( transitions.get(state, symbol)!=null,
+						"Transition table is not complete.");
+			}
+		}
+		
+		// check that initial and final states are in fact in the machine
+		Preconditions.checkState( states.contains(initialState), "Initial state is not in the table." );
+		Preconditions.checkState( states.containsAll(finalStates), "Some final state is not in the table." );		
 	}
 	
 	/**
@@ -73,7 +84,7 @@ public class DFAutomaton implements Automaton<DFAState> {
 	 * @return
 	 */
 	public final Set<DFAState> getStates() {
-		return states;
+		return this.states;
 	}
 
 	/**
@@ -99,8 +110,13 @@ public class DFAutomaton implements Automaton<DFAState> {
 
 	@Override
 	public boolean compute(String input) {
-		// TODO Auto-generated method stub
-		return false;
+		Preconditions.checkArgument(input!=null, "Input is null.");
+		DFAState currentState = this.initialState;
+		char[] inputChars = input.toCharArray();
+		for ( char inputChar : inputChars ) {
+			currentState = this.transitions.get(currentState, inputChar);
+		}
+		return finalStates.contains(currentState);
 	}
 
 }

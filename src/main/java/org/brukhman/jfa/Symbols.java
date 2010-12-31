@@ -18,4 +18,8 @@ public final class Symbols {
 	 */
 	public final static Character NEWLINE = '\n';
 
+	/**
+	 * The empty string.
+	 */
+	public final static String    EMPTY_STRING = "";
 }
