@@ -5,6 +5,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.experimental.theories.Theory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import junit.framework.TestCase;
@@ -42,7 +43,7 @@ public class NFAutomatonTest extends TestCase {
 		testCompute(machine);
 	}
 	
-	private final void testCompute( Automaton machine ) {
+	private final void testCompute( Automaton<?> machine ) {
 		assertTrue( machine.compute("") );
 		assertTrue( machine.compute("ab") );
 		assertTrue( machine.compute("abe") );
@@ -53,6 +54,7 @@ public class NFAutomatonTest extends TestCase {
 			input = input+"e";
 			assertTrue(machine.compute(input));
 		}
+		
 	}
 	
 	public void testGetAlphabet() {
