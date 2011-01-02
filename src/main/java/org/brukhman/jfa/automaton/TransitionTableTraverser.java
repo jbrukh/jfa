@@ -3,14 +3,11 @@ package org.brukhman.jfa.automaton;
 import static org.brukhman.jfa.automaton.Symbols.EPSILON;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 /**

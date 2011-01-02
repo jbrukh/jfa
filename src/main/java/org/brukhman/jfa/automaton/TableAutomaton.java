@@ -34,8 +34,18 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 		transitions = new TransitionTable();
 		states 		= Sets.newHashSet();
 		symbols 	= Sets.newHashSet();
+		finalStates = Sets.newHashSet();
 	}
 
+	/**
+	 * Return this transition table.
+	 * 
+	 * @return
+	 */
+	final TransitionTable getTable() {
+		return transitions;
+	}
+	
 	@Override
 	public Automaton addState(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
@@ -58,7 +68,7 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 	public void makeInitial(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
 		initialState = state;
-		state.setFinal(true);
+		state.setInitial(true);
 	}
 
 	@Override
@@ -90,6 +100,11 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 	@Override
 	public ImmutableSet<Character> getSymbols() {
 		return ImmutableSet.copyOf( symbols );
+	}
+	
+	@Override
+	public void addTransition( State from, Character symbol, State to ) {
+		transitions.addTransition(from, symbol, to);
 	}
 
 	@Override

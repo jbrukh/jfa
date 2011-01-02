@@ -77,6 +77,15 @@ public interface ConstructibleAutomaton extends Automaton {
 	 * @return
 	 */
 	public abstract ImmutableSet<State> getFinal();
+	
+	/**
+	 * Add a transition to the automaton.
+	 * 
+	 * @param from
+	 * @param symbol
+	 * @param to
+	 */
+	public abstract void addTransition( State from, Character symbol, State to );
 		
 	/**
 	 * Return an {@link ImmutableAutomaton} that computes the language

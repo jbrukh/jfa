@@ -8,6 +8,8 @@ package org.brukhman.jfa.automaton;
  */
 public final class State extends GenericState<Integer>{
 	
+	private static int stateCount = 0;
+	
 	/**
 	 * Create a new instance.
 	 * 
@@ -15,5 +17,14 @@ public final class State extends GenericState<Integer>{
 	 */
 	public State( Integer name ) {
 		super(name);
+	}
+	
+	/**
+	 * Create a new state from an internal count.
+	 * 
+	 * @return
+	 */
+	public final static State next() {
+		return new State(++stateCount);
 	}
 }

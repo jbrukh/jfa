@@ -38,7 +38,7 @@ public final class NFA extends TableAutomaton {
 	 * 
 	 * @param states
 	 */
-	private NFA( Iterator<State> states ) {
+	public NFA( Iterator<State> states ) {
 		if ( states != null ) {
 			Iterators.addAll(this.states, states);
 		}
@@ -49,7 +49,7 @@ public final class NFA extends TableAutomaton {
 	 * 
 	 * @param states
 	 */
-	private NFA( State... states ) {
+	public NFA( State... states ) {
 		this( Iterators.forArray(states) );
 	}
 	
