@@ -1,4 +1,4 @@
-package org.brukhman.jfa;
+package org.brukhman.jfa.automaton;
 
 /**
  * An NFA state, which can be labeled with an integer.
@@ -6,14 +6,14 @@ package org.brukhman.jfa;
  * @author jbrukh
  *
  */
-public class NFAState extends State<Integer>{
+public class State extends GenericState<Integer>{
 	
 	/**
 	 * Create a new instance.
 	 * 
 	 * @param name
 	 */
-	public NFAState( Integer name ) {
+	public State( Integer name ) {
 		super(name);
 	}
 }

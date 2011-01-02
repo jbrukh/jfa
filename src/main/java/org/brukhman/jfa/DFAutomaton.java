@@ -1,8 +1,12 @@
 package org.brukhman.jfa;
 
-import static org.brukhman.jfa.Symbols.*;
+import static org.brukhman.jfa.automaton.Symbols.*;
+
 import java.util.Collections;
 import java.util.Set;
+
+import org.brukhman.jfa.automaton.Automaton;
+import org.brukhman.jfa.automaton.MultiState;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Table;
@@ -13,16 +17,16 @@ import com.google.common.collect.Table;
  * @author ybrukhma
  *
  */
-public class DFAutomaton implements Automaton<DFAState> {
+public class DFAutomaton implements Automaton<MultiState> {
 	
 	// FIELDS //
 	
-	private final DFAState			initialState;
-	private final Set<DFAState>		finalStates;
-	private final Set<DFAState> 	states; 
+	private final MultiState			initialState;
+	private final Set<MultiState>		finalStates;
+	private final Set<MultiState> 	states; 
 	private final Set<Character> 	alphabet;
 
-	private final Table<DFAState, Character, DFAState>
+	private final Table<MultiState, Character, MultiState>
 									transitions;
 	/**
 	 * Create a new instance.
@@ -32,9 +36,9 @@ public class DFAutomaton implements Automaton<DFAState> {
 	 * @param initialState
 	 * @param finalStates
 	 */
-	public DFAutomaton( Table<DFAState, Character, DFAState> transitions, 
-						DFAState initialState, 
-						Set<DFAState> finalStates ) {
+	public DFAutomaton( Table<MultiState, Character, MultiState> transitions, 
+						MultiState initialState, 
+						Set<MultiState> finalStates ) {
 		
 		Preconditions.checkArgument( transitions!=null );
 		Preconditions.checkArgument( initialState != null, "Must have an initial state." );
@@ -58,7 +62,7 @@ public class DFAutomaton implements Automaton<DFAState> {
 		Preconditions.checkState( states.size()>0 && alphabet.size()>0, "No states or no alphabet.");
 		
 		// check that every state has every transition
-		for ( DFAState state : states ) {
+		for ( MultiState state : states ) {
 			for ( Character symbol : alphabet ) {
 				Preconditions.checkState( transitions.get(state, symbol)!=null,
 						"Transition table is not complete.");
@@ -83,7 +87,7 @@ public class DFAutomaton implements Automaton<DFAState> {
 	 * 
 	 * @return
 	 */
-	public final Set<DFAState> getStates() {
+	public final Set<MultiState> getStates() {
 		return this.states;
 	}
 
@@ -94,24 +98,24 @@ public class DFAutomaton implements Automaton<DFAState> {
 	 * @param symbol
 	 * @param toState
 	 */
-	public final void addTransition( DFAState fromState, Character symbol, DFAState toState ) {
+	public final void addTransition( MultiState fromState, Character symbol, MultiState toState ) {
 		this.transitions.put(fromState, symbol, toState);
 	}
 	
 	@Override
-	public DFAState getInitialState() {
+	public MultiState getInitialState() {
 		return this.initialState;
 	}
 
 	@Override
-	public Set<DFAState> getFinalStates() {
+	public Set<MultiState> getFinalStates() {
 		return this.finalStates;
 	}
 
 	@Override
 	public boolean compute(String input) {
 		Preconditions.checkArgument(input!=null, "Input is null.");
-		DFAState currentState = this.initialState;
+		MultiState currentState = this.initialState;
 		char[] inputChars = input.toCharArray();
 		for ( char inputChar : inputChars ) {
 			currentState = this.transitions.get(currentState, inputChar);

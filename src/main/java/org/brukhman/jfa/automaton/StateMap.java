@@ -1,6 +1,6 @@
-package org.brukhman.jfa;
+package org.brukhman.jfa.automaton;
 
-import static org.brukhman.jfa.Symbols.*;
+import static org.brukhman.jfa.automaton.Symbols.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import com.google.common.collect.Multimap;
  * @param <StateType>	the type of state that is available
  * @param <Character>	the transition symbol
  */
-final class StateMap<StateType extends State<?>> {
+final class StateMap<StateType extends GenericState<?>> {
 
 	// FIELDS //
 	

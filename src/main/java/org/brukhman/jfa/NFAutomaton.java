@@ -1,6 +1,6 @@
 package org.brukhman.jfa;
 
-import static org.brukhman.jfa.Symbols.*;
+import static org.brukhman.jfa.automaton.Symbols.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +8,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+
+import org.brukhman.jfa.automaton.Automaton;
+import org.brukhman.jfa.automaton.MultiState;
+import org.brukhman.jfa.automaton.State;
+import org.brukhman.jfa.automaton.GenericState;
+import org.brukhman.jfa.automaton.StateMap;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -23,19 +29,19 @@ import com.google.common.collect.Table;
  * @author jbrukh
  *
  */
-class NFAutomaton implements Automaton<NFAState> {
+class NFAutomaton implements Automaton<State> {
 
 	// FIELDS //
 
-	private NFAState 						initialState;
-	private Set<NFAState> 					finalStates;
-	private StateMap<NFAState> 				stateMap;
+	private State 						initialState;
+	private Set<State> 					finalStates;
+	private StateMap<State> 				stateMap;
 
 	private int								count;
 	
-	private final static Predicate<State<?>> isFinalPredicate = new Predicate<State<?>>() {
+	private final static Predicate<GenericState<?>> isFinalPredicate = new Predicate<GenericState<?>>() {
 		@Override
-		public boolean apply(State<?> state) {
+		public boolean apply(GenericState<?> state) {
 			return state.isFinal();
 		}
 	};
@@ -45,7 +51,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 */
 	public NFAutomaton() {
 		this.finalStates 	= Sets.newHashSet();
-		this.stateMap    	= new StateMap<NFAState>();		
+		this.stateMap    	= new StateMap<State>();		
 		this.count			= 0;
 	}
 
@@ -54,17 +60,17 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * 
 	 * @param state
 	 */
-	public final void addState( NFAState state ) {
+	public final void addState( State state ) {
 		this.stateMap.add(state);
 	}
 
 	/**
 	 * Add a state.
 	 * 
-	 * @return the {@link NFAState} that was added
+	 * @return the {@link State} that was added
 	 */
-	public final NFAState addState() {
-		NFAState state = new NFAState(count++);
+	public final State addState() {
+		State state = new State(count++);
 		addState(state);
 		return state;
 	}
@@ -74,7 +80,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * 
 	 * @param state
 	 */
-	public final void removeState( NFAState state ) {
+	public final void removeState( State state ) {
 		this.stateMap.remove(state);
 
 		if ( state.isInitial() ) {
@@ -98,7 +104,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * 
 	 * @param state
 	 */
-	public final void makeInitial( NFAState state ) {
+	public final void makeInitial( State state ) {
 		Preconditions.checkArgument(this.stateMap.getStates().contains(state),
 				"The state must be in the machine.");
 		clearInitialState();
@@ -112,7 +118,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * 
 	 * @param state
 	 */
-	public final void makeFinal( NFAState state ) {
+	public final void makeFinal( State state ) {
 		Preconditions.checkArgument(this.stateMap.getStates().contains(state),
 				"The state must be in the machine.");
 		state.setFinal(true);
@@ -135,7 +141,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * 
 	 * @param state
 	 */
-	public final void clearFinalState( NFAState state ) {
+	public final void clearFinalState( State state ) {
 		Preconditions.checkArgument(this.stateMap.getStates().contains(state),"The state must be in the machine.");
 		Preconditions.checkArgument(finalStates.contains(state),"The state must be a final state.");
 		this.finalStates.remove(state);
@@ -149,7 +155,7 @@ class NFAutomaton implements Automaton<NFAState> {
 	 * @param symbol
 	 * @param toState
 	 */
-	public final void addTransition( NFAState fromState, Character symbol, NFAState toState ) {
+	public final void addTransition( State fromState, Character symbol, State toState ) {
 		stateMap.add(fromState,symbol,toState);
 	}
 
@@ -159,16 +165,16 @@ class NFAutomaton implements Automaton<NFAState> {
 		
 		// figure out what the states are going to be
 		// by performing a BFS
-		Set<DFAState> newStates = Sets.newHashSet();
-		Set<DFAState> finalStates = Sets.newHashSet();
-		DFAState      initialState;
+		Set<MultiState> newStates = Sets.newHashSet();
+		Set<MultiState> finalStates = Sets.newHashSet();
+		MultiState      initialState;
 		
 		// the new DFA transitions table
-		Table<DFAState, Character, DFAState> transitions = HashBasedTable.create();
+		Table<MultiState, Character, MultiState> transitions = HashBasedTable.create();
 		
 		// start at the epsilon-closure of the initial state
-		DFAState currentState = new DFAState(stateMap.epsilonTransition(this.initialState));
-		Queue<DFAState> queue = Lists.newLinkedList();
+		MultiState currentState = new MultiState(stateMap.epsilonTransition(this.initialState));
+		Queue<MultiState> queue = Lists.newLinkedList();
 		
 		// if the start state is final...
 		if ( Iterables.any(currentState.getName(), NFAutomaton.isFinalPredicate) ) {
@@ -185,7 +191,7 @@ class NFAutomaton implements Automaton<NFAState> {
 			currentState = queue.remove();
 			
 			for ( Character symbol : alphabet ) {
-				DFAState toState = new DFAState(
+				MultiState toState = new MultiState(
 										stateMap.transition(currentState.getName(), symbol)
 									);
 				
@@ -216,7 +222,7 @@ class NFAutomaton implements Automaton<NFAState> {
 		Preconditions.checkNotNull(input);
 		
 		char[] inputArray = input.toCharArray();
-		Set<NFAState> currentStates = this.stateMap.epsilonTransition(this.initialState);
+		Set<State> currentStates = this.stateMap.epsilonTransition(this.initialState);
 
 		for ( char inputChar : inputArray ) {
 			currentStates = stateMap.transition(currentStates, inputChar);
@@ -226,17 +232,17 @@ class NFAutomaton implements Automaton<NFAState> {
 	}
 
 	@Override
-	public Set<NFAState> getFinalStates() {
+	public Set<State> getFinalStates() {
 		return Collections.unmodifiableSet(this.finalStates);
 	}
 
 	@Override
-	public NFAState getInitialState() {
+	public State getInitialState() {
 		return this.initialState;
 	}
 
 	@Override
-	public Set<NFAState> getStates() {
+	public Set<State> getStates() {
 		return this.stateMap.getStates();
 	}
 }

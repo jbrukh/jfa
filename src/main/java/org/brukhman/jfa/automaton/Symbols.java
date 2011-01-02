@@ -1,4 +1,4 @@
-package org.brukhman.jfa;
+package org.brukhman.jfa.automaton;
 
 /**
  * Various symbols.
