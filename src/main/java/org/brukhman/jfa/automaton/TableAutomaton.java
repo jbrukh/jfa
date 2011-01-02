@@ -18,23 +18,19 @@ import com.google.common.collect.Table;
 public abstract class TableAutomaton implements ConstructibleAutomaton {
 
 	// FIELDS //
-	protected final TransitionTable transitions;
+	protected final HashBasedTransitionTable transitions;
 	
 	protected Set<State>			states;
 	protected Set<Character>		symbols;
 	
-	protected State					initialState;
-	protected Set<State>			finalStates;
-
 	/**
 	 * Create a new instance.
 	 * 
 	 */
 	public TableAutomaton() {
-		transitions = new TransitionTable();
+		transitions = new HashBasedTransitionTable();
 		states 		= Sets.newHashSet();
 		symbols 	= Sets.newHashSet();
-		finalStates = Sets.newHashSet();
 	}
 
 	/**
@@ -66,35 +62,27 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 
 	@Override
 	public void makeInitial(State state) {
-		Preconditions.checkNotNull(state, "Provide a state.");
-		initialState = state;
-		state.setInitial(true);
+		transitions.makeInitial(state);	
 	}
 
 	@Override
 	public final State getInitial() {
-		return initialState;
+		return transitions.getInitial();
 	}
 
 	@Override
 	public void makeFinal(State state) {
-		Preconditions.checkNotNull(state, "Provide a state.");
-		finalStates.add(state);
-		state.setFinal(true);
+		transitions.makeFinal(state);
 	}
 	
 	@Override
 	public void clearFinal(State state) {
-		Preconditions.checkNotNull(state, "Provide a state.");
-		Preconditions.checkState( transitions.containsState(state), 
-				"State must exist in the machine." );
-		finalStates.remove( state );
-		state.setFinal(false);
+		transitions.clearFinal(state);
 	}
 
 	@Override
 	public ImmutableSet<State> getFinal() {
-		return ImmutableSet.copyOf( finalStates );
+		return transitions.getFinal();
 	}
 
 	@Override
@@ -104,6 +92,11 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 	
 	@Override
 	public void addTransition( State from, Character symbol, State to ) {
+		Preconditions.checkNotNull(from);
+		Preconditions.checkNotNull(to);
+		Preconditions.checkNotNull(symbol);
+		Preconditions.checkState( states.contains(from) && states.contains(to),
+				"Either from or to state is not in the machine.");		
 		transitions.addTransition(from, symbol, to);
 	}
 
@@ -111,5 +104,5 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 	public ImmutableAutomaton finish() {
 		return new ImmutableAutomaton(this);
 	}
-	
+		
 }

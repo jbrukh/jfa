@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 
@@ -24,15 +23,6 @@ public final class NFA extends TableAutomaton {
 
 	// FIELDS //
 	
-	/** Predicate for finding final states. */
-	private final static Predicate<GenericState<?>> isFinalPredicate = new Predicate<GenericState<?>>() {
-		@Override
-		public boolean apply(GenericState<?> state) {
-			return state.isFinal();
-		}
-	};
-	
-
 	/**
 	 * Create a new instance.
 	 * 
@@ -57,16 +47,35 @@ public final class NFA extends TableAutomaton {
 	@Override
 	public boolean compute(String input) {
 		Preconditions.checkNotNull(input);
+		validate();
 		
 		char[] inputArray = input.toCharArray();
-		TransitionTableTraverser traverser = new TransitionTableTraverser(transitions);
+		NondeterministicTransitionTableTraverser traverser = new NondeterministicTransitionTableTraverser(transitions);
 		
-		Set<State> currentStates = traverser.epsilonClosure(initialState);
+		Set<State> currentStates = traverser.epsilonClosureInitial();
 
 		for ( char inputChar : inputArray ) {
 			currentStates = traverser.transition(currentStates, inputChar);
 		}
-		return Iterables.any(currentStates, isFinalPredicate);
+		return Iterables.any( currentStates, State.isFinalPredicate );
+	}
+
+	@Override
+	public ImmutableAutomaton finish() {
+		validate();
+		return super.finish();
+	}
+	
+	/**
+	 * Make sure this machine is valid.
+	 */
+	private final void validate() {
+		Preconditions.checkState( transitions.getInitial() != null, "There is no initial state in the machine.");
+		Preconditions.checkState( !transitions.getFinal().isEmpty(), "No final states -- this machine accepts no language.");
+		Preconditions.checkState(
+				states.containsAll(transitions.getStates()),
+				"Looks like you forgot to add some transitions."
+		);
 	}
 
 }

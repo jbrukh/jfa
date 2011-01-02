@@ -2,28 +2,9 @@ package org.brukhman.jfa.automaton;
 
 import java.util.Set;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Table;
 
-/**
- * A transition table for an NFA.  This means each
- * @author jbrukh
- *
- */
-public final class TransitionTable {
-
-	// FIELDS //
-	
-	private final Table<State, Character, Set<State>> transitions;
-	
-	/**
-	 * Create a new instance, privately.
-	 */
-	public TransitionTable() {
-		transitions = HashBasedTable.create();
-	}
+public interface TransitionTable {
 
 	/**
 	 * Returns {@code true} if and only if the table contains the specified state.
@@ -31,69 +12,80 @@ public final class TransitionTable {
 	 * @param state
 	 * @return
 	 */
-	public final boolean containsState( State state ) {
-		return transitions.rowKeySet().contains(state);
-	}
-	
+	public abstract boolean containsState(State state);
+
 	/**
 	 * Returns {@code true} if and only if the table contains the specified state.
 	 * 
 	 * @param symbol
 	 * @return
 	 */
-	public final boolean containsSymbol( Character symbol ) {
-		return transitions.columnKeySet().contains(symbol);
-	}
-	
-	/**
-	 * Add a transition.
-	 * 
-	 * @param fromState
-	 * @param symbol
-	 * @param toState
-	 * @return
-	 */
-	public final void addTransition( State fromState, Character symbol, State toState ) {
-		Set<State> toStates = transitions.get(fromState, symbol);
-		if ( toStates == null ) {
-			toStates = Sets.newHashSet();
-			transitions.put(fromState,symbol,toStates);
-		}
-		toStates.add(toState);
-	}
-	
-	/**
-	 * Get a transition.
-	 * 
-	 * @param fromState
-	 * @param symbol
-	 * @return
-	 */
-	public final ImmutableSet<State> transition( State fromState, Character symbol ) {
-		Set<State> toStates = transitions.get(fromState, symbol);
-		if ( toStates == null ) {
-			return ImmutableSet.of();
-		}
-		return ImmutableSet.copyOf(toStates);
-	}
+	public abstract boolean containsSymbol(Character symbol);
 
+	/**
+	 * Return a traverser for this table.
+	 * 
+	 * @return
+	 */
+	public abstract TransitionTableTraverser traverser();
+
+	/**
+	 * Transition.
+	 *  
+	 * @param from
+	 * @param symbol
+	 * @return
+	 */
+	public abstract ImmutableSet<State> transition( State from, Character symbol );
+	
 	/**
 	 * Get the states of the table.
 	 * 
 	 * @return
 	 */
-	public final ImmutableSet<State> getStates() {
-		return ImmutableSet.copyOf( transitions.rowKeySet() );
-	}
-	
+	public abstract ImmutableSet<State> getStates();
+
 	/**
 	 * Get the symbols of the table.
 	 * 
 	 * @return
 	 */
-	public final ImmutableSet<Character> getSymbols() {
-		return ImmutableSet.copyOf( transitions.columnKeySet() );
-	}
+	public abstract ImmutableSet<Character> getSymbols();
+	
+	/**
+	 * Make a state the initial state.  This will clear any states
+	 * that have already been thus designated.
+	 * 
+	 * @param state
+	 */
+	public abstract void makeInitial( State state );
+	
+	/**
+	 * Returns the initial state.
+	 * 
+	 * @return
+	 */
+	public abstract State getInitial();
+	
+	/**
+	 * Make a state a final state.
+	 * 
+	 * @param state
+	 */
+	public abstract void makeFinal( State state );
+	
+	/**
+	 * Clear a state from the final states.
+	 * 
+	 * @param state
+	 */
+	public abstract void clearFinal( State state );
+	
+	/**
+	 * Returns the final states.
+	 * 
+	 * @return
+	 */
+	public abstract ImmutableSet<State> getFinal();
 
 }
- 

@@ -1,5 +1,7 @@
 package org.brukhman.jfa.automaton;
 
+import com.google.common.base.Predicate;
+
 /**
  * Describes an automaton's state, or node.
  * 
@@ -15,6 +17,14 @@ public class GenericState<T> {
 	/** State qualifiers. */
 	private boolean isInitial;
 	private boolean isFinal;
+	
+	/** Predicate for finding final states. */
+	public final static Predicate<GenericState<?>> isFinalPredicate = new Predicate<GenericState<?>>() {
+		@Override
+		public boolean apply(GenericState<?> state) {
+			return state.isFinal();
+		}
+	};
 	
 	/**
 	 * Create a new instance.
