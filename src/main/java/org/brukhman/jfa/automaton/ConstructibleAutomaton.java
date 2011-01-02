@@ -11,17 +11,14 @@ import com.google.common.collect.ImmutableSet;
  *
  * @param <SymbolType>
  */
-public interface ConstructibleAutomaton
-										<StateType extends GenericState<?>, 
-										 SymbolType extends Symbol<?>> 
-extends Automaton {
+public interface ConstructibleAutomaton extends Automaton {
 	
 	/**
 	 * Add a state to the automaton.
 	 * 
 	 * @param state
 	 */
-	public abstract Automaton addState( StateType state );
+	public abstract Automaton addState( State state );
 	
 	/**
 	 * Remove a state from the machine, and any transitions
@@ -29,21 +26,21 @@ extends Automaton {
 	 * 
 	 * @param state
 	 */
-	public abstract void removeState( StateType state );
+	public abstract void removeState( State state );
 	
 	/**
 	 * Returns the set of states.  This set should be immutable.
 	 * 
 	 * @return
 	 */
-	public abstract ImmutableSet<StateType> getStates();
+	public abstract ImmutableSet<State> getStates();
 	
 	/**
 	 * Return the symbols (alphabet) that this automaton operates on.
 	 * 
 	 * @return
 	 */
-	public abstract ImmutableSet<SymbolType> getSymbols();
+	public abstract ImmutableSet<Character> getSymbols();
 
 	/**
 	 * Make a state the initial state.  This will clear any states
@@ -51,35 +48,35 @@ extends Automaton {
 	 * 
 	 * @param state
 	 */
-	public abstract void makeInitial( StateType state );
+	public abstract void makeInitial( State state );
 	
 	/**
 	 * Returns the initial state.
 	 * 
 	 * @return
 	 */
-	public abstract StateType getInitial();
+	public abstract State getInitial();
 	
 	/**
 	 * Make a state a final state.
 	 * 
 	 * @param state
 	 */
-	public abstract void makeFinal( StateType state );
+	public abstract void makeFinal( State state );
 	
 	/**
 	 * Clear a state from the final states.
 	 * 
 	 * @param state
 	 */
-	public abstract void clearFinal(StateType state);
+	public abstract void clearFinal( State state );
 	
 	/**
 	 * Returns the final states.
 	 * 
 	 * @return
 	 */
-	public abstract ImmutableSet<StateType> getFinal();
+	public abstract ImmutableSet<State> getFinal();
 		
 	/**
 	 * Return an {@link ImmutableAutomaton} that computes the language

@@ -12,71 +12,69 @@ import com.google.common.collect.Table;
  * 
  * @author jbrukh
  *
- * @param <StateType>
- * @param <SymbolType>
+ * @param <State>
+ * @param <Character>
  */
-public abstract class TableAutomaton
-			 <StateType extends GenericState<?>, 
-			  SymbolType extends Symbol<?>> implements ConstructibleAutomaton<StateType, SymbolType>{
+public abstract class TableAutomaton implements ConstructibleAutomaton {
 
 	// FIELDS //
-	protected final TransitionTable<StateType, SymbolType> 	transitions;
+	protected final TransitionTable transitions;
 	
-	protected Set<StateType>								states;
-	protected Set<SymbolType>								symbols;
+	protected Set<State>			states;
+	protected Set<Character>		symbols;
 	
-	protected StateType 									initialState;
-	protected Set<StateType>								finalStates;
+	protected State					initialState;
+	protected Set<State>			finalStates;
 
 	/**
 	 * Create a new instance.
 	 * 
 	 */
 	public TableAutomaton() {
-		transitions = TransitionTable.create();
+		transitions = new TransitionTable();
 		states 		= Sets.newHashSet();
 		symbols 	= Sets.newHashSet();
 	}
 
 	@Override
-	public Automaton addState(StateType state) {
+	public Automaton addState(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
 		states.add(state);
 		return this;
 	}
 
 	@Override
-	public void removeState(StateType state) {
+	public void removeState(State state) {
 		// not clear whether this functionality is necessary
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public ImmutableSet<StateType> getStates() {
+	public ImmutableSet<State> getStates() {
 		return ImmutableSet.copyOf( states );
 	}
 
 	@Override
-	public void makeInitial(StateType state) {
+	public void makeInitial(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
 		initialState = state;
 		state.setFinal(true);
 	}
 
 	@Override
-	public final StateType getInitial() {
+	public final State getInitial() {
 		return initialState;
 	}
 
 	@Override
-	public void makeFinal(StateType state) {
+	public void makeFinal(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
 		finalStates.add(state);
 		state.setFinal(true);
 	}
 	
 	@Override
-	public void clearFinal(StateType state) {
+	public void clearFinal(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
 		Preconditions.checkState( transitions.containsState(state), 
 				"State must exist in the machine." );
@@ -85,12 +83,12 @@ public abstract class TableAutomaton
 	}
 
 	@Override
-	public ImmutableSet<StateType> getFinal() {
+	public ImmutableSet<State> getFinal() {
 		return ImmutableSet.copyOf( finalStates );
 	}
 
 	@Override
-	public ImmutableSet<SymbolType> getSymbols() {
+	public ImmutableSet<Character> getSymbols() {
 		return ImmutableSet.copyOf( symbols );
 	}
 

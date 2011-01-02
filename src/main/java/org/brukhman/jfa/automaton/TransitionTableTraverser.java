@@ -9,11 +9,21 @@ import java.util.Set;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
-public class TransitionTableTraverser<StateType extends GenericState<?>, SymbolType extends Symbol<?>>  {
+/**
+ * Traverse transition tables.
+ * 
+ * @author jbrukh
+ *
+ */
+public class TransitionTableTraverser  {
 	
-	private final TransitionTable<?,?> table;
+	// FIELDS //
+	
+	private final TransitionTable table;
 	
 	/**
 	 * Create a new instance.
@@ -22,115 +32,106 @@ public class TransitionTableTraverser<StateType extends GenericState<?>, SymbolT
 	 * @param <SymbolType>
 	 * @param table
 	 */
-	private TransitionTableTraverser( TransitionTable<StateType,SymbolType> table ) {
+	public TransitionTableTraverser( TransitionTable table ) {
 		Preconditions.checkNotNull(table);
 		this.table = table;
 	}
 	
-	public final static <StateType extends GenericState<?>, SymbolType extends Symbol<?>>
-	TransitionTableTraverser<StateType, SymbolType> create( TransitionTable<StateType,SymbolType> table ) {
-		return new TransitionTableTraverser<StateType, SymbolType>(table);
-	}
-
 	/**
 	 * DFS for epsilon-reachable states and place them in the provided result set.
 	 * 
-	 * @param fromState the starting state
+	 * @param from the starting state
 	 * @param reachable	the result set
 	 */
-	private final void epsilonTransition( StateType fromState, Set<StateType> reachable ) {
+	private final void epsilonClosure( State from, Set<State> reachable ) {
 		// get epsilon transitions
-		Collection<StateType> toStates = table.transition(fromState, Symbol.EPSILON);
-		if ( toStates.isEmpty() ) { 
-			return;
-		}
-		
-		for ( StateType state : toStates ) {
+		Collection<State> toStates = table.transition(from, EPSILON);
+		for ( State state : toStates ) {
 			reachable.add(state);
-			epsilonTransition(state,reachable);
+			epsilonClosure(state,reachable);
 		}
+	}
+	
+	/**
+	 * Transitions the given set by non-epsilon symbols.
+	 * 
+	 * @param from
+	 * @param symbol
+	 * @return
+	 */
+	private final Set<State> concereteTransition( Set<State> from, Character symbol ) {
+		Preconditions.checkNotNull( from );
+		Preconditions.checkNotNull( symbol );	
+		Preconditions.checkArgument( !symbol.equals(EPSILON), "Must provide a non-epsilon symbol.");
+		
+		Set<State> to = Sets.newHashSet();
+		for ( State state : from ) {
+			to.addAll(table.transition(state,symbol));
+		}
+		return to;
 	}
 	
 	/**
 	 * Returns the set of states reachable by epsilon transitions from a given state.
 	 * 
-	 * @param fromState
+	 * @param from
 	 * @return
 	 */
-	public final Set<StateType> epsilonTransition( StateType fromState ) {
-		Preconditions.checkArgument( fromState!=null );
-		
-		Set<StateType> toStates = new HashSet<StateType>();
-		
+	public final ImmutableSet<State> epsilonClosure( State from ) {
+		Preconditions.checkNotNull(from);
+		Set<State> to = Sets.newHashSet();
 		// add the starting state
-		toStates.add(fromState);
-		
+		to.add(from);
 		// dfs for epsilon transitions
-		epsilonTransition(fromState,toStates);
-		return Collections.unmodifiableSet(toStates);
+		epsilonClosure(from,to);
+		return ImmutableSet.copyOf( to );
 	}
 
 	/**
 	 * Transition one set of states given a transition symbol.  This is useful in NFAs
 	 * for getting closures of a state or set of states.
 	 * 
-	 * @param fromStates
+	 * @param from
 	 * @param symbol
 	 * @return
 	 */
-	public final Set<StateType> transition( Set<StateType> fromStates, Character symbol ) {
-		Preconditions.checkArgument( fromStates != null && symbol != null );
-
-		Set<StateType> toStates = new HashSet<StateType>();
-		for ( StateType state : fromStates ) {
-			toStates.addAll( transition(state,symbol) );
+	public final ImmutableSet<State> transition( Set<State> from, Character symbol ) {
+		Preconditions.checkNotNull(from);
+		Preconditions.checkNotNull(symbol);
+		
+		Set<State> to = Sets.newHashSet();
+		for ( State state : from ) {
+			to.addAll( transition(state,symbol) );
 		}
-		return Collections.unmodifiableSet(toStates);
+		return ImmutableSet.copyOf( to );
 	}
 	
 	/**
 	 * Returns the map image of the given input, e.g. the set of states to
 	 * which the machine transitions.
 	 * 
-	 * @param fromState
+	 * @param from
 	 * @param symbol
 	 * @return
 	 */
-	public final Set<StateType> transition( StateType fromState, Character symbol ) {
-		Preconditions.checkArgument( fromState != null && symbol != null );
+	public final ImmutableSet<State> transition( State from, Character symbol ) {
+		Preconditions.checkNotNull(from);
+		Preconditions.checkNotNull(symbol);
 
-		Set<StateType> epsilonStates = epsilonTransition(fromState);
+		Set<State> epsilonStates = epsilonClosure(from);
 		
 		// epsilon transition?
 		if ( Objects.equal(symbol,EPSILON) ) {
-			return epsilonStates;
-		}
-		
-		Set<StateType> toStates = new HashSet<StateType>();
+			return ImmutableSet.copyOf(epsilonStates);
+		}	
+		Set<State> toStates = Sets.newHashSet();
 		
 		// add all the concrete transitions
 		toStates.addAll(
 				concereteTransition(epsilonStates, symbol)
 		);
 	
-		return Collections.unmodifiableSet(toStates);
+		return ImmutableSet.copyOf( toStates );
 	}
-	
-	/**
-	 * Transitions the given set by non-epsilon symbols.
-	 * 
-	 * @param fromStates
-	 * @param symbol
-	 * @return
-	 */
-	private final Set<StateType> concereteTransition( Set<StateType> fromStates, Character symbol ) {
-		Preconditions.checkArgument( fromStates != null && symbol != null );
-		Preconditions.checkArgument( !symbol.equals(EPSILON), "Must provide a non-epsilon symbol.");
-		
-		Set<StateType> toStates = new HashSet<StateType>();
-		for ( StateType fromState : fromStates ) {
-			toStates.addAll(startingAt(fromState).get(symbol));
-		}
-		return Collections.unmodifiableSet(toStates);
-	}
+
 }

@@ -7,38 +7,31 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 
-public final class TransitionTable<StateType extends GenericState<?>, SymbolType extends Symbol<?>> {
+/**
+ * A transition table for an NFA.  This means each
+ * @author jbrukh
+ *
+ */
+public final class TransitionTable {
 
 	// FIELDS //
 	
-	private final Table<StateType, SymbolType, Set<StateType>> transitions;
+	private final Table<State, Character, Set<State>> transitions;
 	
 	/**
 	 * Create a new instance, privately.
 	 */
-	private TransitionTable() {
+	public TransitionTable() {
 		transitions = HashBasedTable.create();
 	}
 
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param <StateType>
-	 * @param <SymbolType>
-	 * @return
-	 */
-	public final static <StateType extends GenericState<?>, SymbolType extends Symbol<?>> 
-	TransitionTable<StateType,SymbolType> create() {
-		return new TransitionTable<StateType, SymbolType>();
-	}
-	
 	/**
 	 * Returns {@code true} if and only if the table contains the specified state.
 	 * 
 	 * @param state
 	 * @return
 	 */
-	public final boolean containsState( StateType state ) {
+	public final boolean containsState( State state ) {
 		return transitions.rowKeySet().contains(state);
 	}
 	
@@ -48,7 +41,7 @@ public final class TransitionTable<StateType extends GenericState<?>, SymbolType
 	 * @param symbol
 	 * @return
 	 */
-	public final boolean containsSymbol( SymbolType symbol ) {
+	public final boolean containsSymbol( Character symbol ) {
 		return transitions.columnKeySet().contains(symbol);
 	}
 	
@@ -60,8 +53,8 @@ public final class TransitionTable<StateType extends GenericState<?>, SymbolType
 	 * @param toState
 	 * @return
 	 */
-	public final void addTransition( StateType fromState, SymbolType symbol, StateType toState ) {
-		Set<StateType> toStates = transitions.get(fromState, symbol);
+	public final void addTransition( State fromState, Character symbol, State toState ) {
+		Set<State> toStates = transitions.get(fromState, symbol);
 		if ( toStates == null ) {
 			toStates = Sets.newHashSet();
 			transitions.put(fromState,symbol,toStates);
@@ -76,8 +69,8 @@ public final class TransitionTable<StateType extends GenericState<?>, SymbolType
 	 * @param symbol
 	 * @return
 	 */
-	public final ImmutableSet<StateType> transition( StateType fromState, SymbolType symbol ) {
-		Set<StateType> toStates = transitions.get(fromState, symbol);
+	public final ImmutableSet<State> transition( State fromState, Character symbol ) {
+		Set<State> toStates = transitions.get(fromState, symbol);
 		if ( toStates == null ) {
 			return ImmutableSet.of();
 		}
@@ -89,7 +82,7 @@ public final class TransitionTable<StateType extends GenericState<?>, SymbolType
 	 * 
 	 * @return
 	 */
-	public final ImmutableSet<StateType> getStates() {
+	public final ImmutableSet<State> getStates() {
 		return ImmutableSet.copyOf( transitions.rowKeySet() );
 	}
 	
@@ -98,7 +91,7 @@ public final class TransitionTable<StateType extends GenericState<?>, SymbolType
 	 * 
 	 * @return
 	 */
-	public final ImmutableSet<SymbolType> getSymbols() {
+	public final ImmutableSet<Character> getSymbols() {
 		return ImmutableSet.copyOf( transitions.columnKeySet() );
 	}
 

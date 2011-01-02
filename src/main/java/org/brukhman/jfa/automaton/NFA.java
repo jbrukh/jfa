@@ -1,12 +1,26 @@
 package org.brukhman.jfa.automaton;
 
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
-public final class NFA<StateType extends GenericState<?>, SymbolType extends Symbol<?>> extends 
-				TableAutomaton<StateType,SymbolType>{
+/**
+ * A Nondeterministic Finite Automaton.
+ * <p>
+ * Since a DFA is a more general case of an NFA, this class can represent DFAs as well, however,
+ * not necessarily in the most computationally efficient way.
+ * <p>
+ * An NFA consists of a set of states, one of which is an initial state and some or none of which
+ * are final states.  Additionally, states may be transitioned given an input symbol.  
+ * 
+ * @author jbrukh
+ *
+ */
+public final class NFA extends TableAutomaton {
 
 	// FIELDS //
 	
@@ -18,55 +32,41 @@ public final class NFA<StateType extends GenericState<?>, SymbolType extends Sym
 		}
 	};
 	
-	/**
-	 * Create a new instance.
-	 * 
-	 */
-	private NFA() {
-		this(null);
-	}
-	
+
 	/**
 	 * Create a new instance.
 	 * 
 	 * @param states
 	 */
-	private NFA( Collection<StateType> states ) {
+	private NFA( Iterator<State> states ) {
 		if ( states != null ) {
-			this.states.addAll(states);
+			Iterators.addAll(this.states, states);
 		}
 	}
 	
 	/**
 	 * Create a new instance.
 	 * 
-	 * @param <StateType>
-	 * @param <SymbolType>
-	 * @return
-	 */
-	public final static <StateType extends GenericState<?>, SymbolType extends Symbol<?>>
-	NFA<StateType,SymbolType> create() {
-		return new NFA<StateType, SymbolType>();
-	}
-
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param <StateType>
-	 * @param <SymbolType>
 	 * @param states
-	 * @return
 	 */
-	public final static <StateType extends GenericState<?>, SymbolType extends Symbol<?>>
-	NFA<StateType,SymbolType> create( StateType... states ) {
-		return new NFA<StateType, SymbolType>( Sets.newHashSet(states) );
+	private NFA( State... states ) {
+		this( Iterators.forArray(states) );
 	}
 	
 
 	@Override
 	public boolean compute(String input) {
-		// TODO Auto-generated method stub
-		return false;
+		Preconditions.checkNotNull(input);
+		
+		char[] inputArray = input.toCharArray();
+		TransitionTableTraverser traverser = new TransitionTableTraverser(transitions);
+		
+		Set<State> currentStates = traverser.epsilonClosure(initialState);
+
+		for ( char inputChar : inputArray ) {
+			currentStates = traverser.transition(currentStates, inputChar);
+		}
+		return Iterables.any(currentStates, isFinalPredicate);
 	}
 
 }

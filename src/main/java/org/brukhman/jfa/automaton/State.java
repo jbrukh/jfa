@@ -6,7 +6,7 @@ package org.brukhman.jfa.automaton;
  * @author jbrukh
  *
  */
-public class State extends GenericState<Integer>{
+public final class State extends GenericState<Integer>{
 	
 	/**
 	 * Create a new instance.
