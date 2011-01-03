@@ -29,6 +29,9 @@ public abstract class AbstractTransitionTable implements TransitionTable {
 	@Override
 	public void makeInitial(State state) {
 		Preconditions.checkNotNull(state, "Provide a state.");
+		if ( initialState!=null ) {
+			initialState.setInitial(false);
+		}
 		initialState = state;
 		state.setInitial(true);
 	}

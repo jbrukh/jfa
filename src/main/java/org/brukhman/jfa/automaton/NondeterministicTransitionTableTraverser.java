@@ -8,6 +8,7 @@ import java.util.Set;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 
 /**
@@ -56,7 +57,7 @@ public final class NondeterministicTransitionTableTraverser implements Transitio
 	 * @param symbol
 	 * @return
 	 */
-	private final Set<State> concereteTransition( Set<State> from, Character symbol ) {
+	private final Set<State> concreteClosure( Set<State> from, Character symbol ) {
 		Preconditions.checkNotNull( from );
 		Preconditions.checkNotNull( symbol );	
 		Preconditions.checkArgument( !symbol.equals(EPSILON), "Must provide a non-epsilon symbol.");
@@ -100,6 +101,7 @@ public final class NondeterministicTransitionTableTraverser implements Transitio
 		for ( State state : from ) {
 			to.addAll( transition(state,symbol) );
 		}
+		
 		return ImmutableSet.copyOf( to );
 	}
 	
@@ -115,17 +117,17 @@ public final class NondeterministicTransitionTableTraverser implements Transitio
 		Preconditions.checkNotNull(from);
 		Preconditions.checkNotNull(symbol);
 
-		Set<State> epsilonStates = epsilonClosure(from);
+		ImmutableSet<State> epsilonStates = epsilonClosure(from);
 		
 		// epsilon transition?
-		if ( Objects.equal(symbol,EPSILON) ) {
-			return ImmutableSet.copyOf(epsilonStates);
+		if ( symbol.equals(EPSILON) ) {
+			return epsilonStates;
 		}	
 		Set<State> toStates = Sets.newHashSet();
 		
 		// add all the concrete transitions
 		toStates.addAll(
-				concereteTransition(epsilonStates, symbol)
+				concreteClosure(epsilonStates, symbol)
 		);
 	
 		return ImmutableSet.copyOf( toStates );

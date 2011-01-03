@@ -6,7 +6,7 @@ package org.brukhman.jfa.automaton;
  * @author jbrukh
  *
  */
-public final class State extends GenericState<Integer>{
+public class State extends GenericState<Integer>{
 	
 	private static int stateCount = 0;
 	
