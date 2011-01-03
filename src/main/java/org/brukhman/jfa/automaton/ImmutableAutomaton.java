@@ -24,6 +24,10 @@ public final class ImmutableAutomaton implements Automaton {
 		this.automaton = automaton;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 */
 	@Override
 	public boolean compute(String input) {
 		return automaton.compute(input);

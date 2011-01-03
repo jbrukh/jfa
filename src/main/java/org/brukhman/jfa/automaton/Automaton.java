@@ -1,8 +1,5 @@
 package org.brukhman.jfa.automaton;
 
-import java.util.Collection;
-import java.util.Set;
-
 
 /**
  * A finite automaton.

@@ -20,8 +20,8 @@ public abstract class TableAutomaton implements ConstructibleAutomaton {
 	// FIELDS //
 	protected final HashBasedTransitionTable transitions;
 	
-	protected Set<State>			states;
-	protected Set<Character>		symbols;
+	protected Set<State>					states;
+	protected Set<Character>				symbols;
 	
 	/**
 	 * Create a new instance.
