@@ -5,94 +5,21 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * An automaton that can be manually constructed by adding states and transitions.
+ * An automaton that can be manually constructed by adding states and 
+ * transitions. An automaton can be described by a transition table, and therefore
+ * these two concepts are nearly identical.
+ * <p>
+ * A deterministic finite automaton (DFA) can be described by a table that
+ * maps a state and a symbol to another state in a machine, where no epsilons
+ * are allowed as symbols.
+ * <p>
+ * A nondeterministic finite automaton (NFA) can be similarly described by a table,
+ * but one that maps a state and a symbol to a set of states in the machine
+ * and epsilons are allowed.
  * 
  * @author jbrukh
  *
  * @param <SymbolType>
  */
-public interface ConstructibleAutomaton extends Automaton {
-	
-	/**
-	 * Add a state to the automaton.
-	 * 
-	 * @param state
-	 */
-	public abstract Automaton addState( State state );
-	
-	/**
-	 * Remove a state from the machine, and any transitions
-	 * that have this state as an endpoint.
-	 * 
-	 * @param state
-	 */
-	public abstract void removeState( State state );
-	
-	/**
-	 * Returns the set of states.  This set should be immutable.
-	 * 
-	 * @return
-	 */
-	public abstract ImmutableSet<State> getStates();
-	
-	/**
-	 * Return the symbols (alphabet) that this automaton operates on.
-	 * 
-	 * @return
-	 */
-	public abstract ImmutableSet<Character> getSymbols();
-
-	/**
-	 * Make a state the initial state.  This will clear any states
-	 * that have already been thus designated.
-	 * 
-	 * @param state
-	 */
-	public abstract void makeInitial( State state );
-	
-	/**
-	 * Returns the initial state.
-	 * 
-	 * @return
-	 */
-	public abstract State getInitial();
-	
-	/**
-	 * Make a state a final state.
-	 * 
-	 * @param state
-	 */
-	public abstract void makeFinal( State state );
-	
-	/**
-	 * Clear a state from the final states.
-	 * 
-	 * @param state
-	 */
-	public abstract void clearFinal( State state );
-	
-	/**
-	 * Returns the final states.
-	 * 
-	 * @return
-	 */
-	public abstract ImmutableSet<State> getFinal();
-	
-	/**
-	 * Add a transition to the automaton.
-	 * 
-	 * @param from
-	 * @param symbol
-	 * @param to
-	 */
-	public abstract void addTransition( State from, Character symbol, State to );
-		
-	/**
-	 * Return an {@link ImmutableAutomaton} that computes the language
-	 * of this automaton.
-	 * 
-	 * @return
-	 */
-	public abstract ImmutableAutomaton finish();
-	
+public interface ConstructibleAutomaton extends Automaton, Table {
 }

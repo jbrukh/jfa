@@ -17,12 +17,10 @@ import com.google.common.collect.Sets;
  * @author jbrukh
  *
  */
-public final class NondeterministicTransitionTableTraverser implements TransitionTableTraverser  {
+public final class NondeterministicTraverser extends TableTraverser<NondeterministicTable>  {
 	
 	// FIELDS //
-	
-	private final TransitionTable table;
-	
+		
 	/**
 	 * Create a new instance.
 	 * 
@@ -30,9 +28,18 @@ public final class NondeterministicTransitionTableTraverser implements Transitio
 	 * @param <SymbolType>
 	 * @param table
 	 */
-	public NondeterministicTransitionTableTraverser( HashBasedTransitionTable table ) {
-		Preconditions.checkNotNull(table);
-		this.table = table;
+	private NondeterministicTraverser( NondeterministicTable table ) {
+		super(table);
+	}
+	
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param table
+	 * @return
+	 */
+	public final static NondeterministicTraverser create( NondeterministicTable table ) {
+		return new NondeterministicTraverser(table);
 	}
 	
 	/**

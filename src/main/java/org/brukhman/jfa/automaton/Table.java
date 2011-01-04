@@ -1,56 +1,56 @@
 package org.brukhman.jfa.automaton;
 
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
 
-public interface TransitionTable {
+/**
+ * A transition table.
+ * <p>
+ * A transition table contains a set of states and a set of symbols, and maps
+ * a state and a symbol into either a state or a set of states, depending on whether
+ * it describes a deterministic or non-deterministic automaton.
+ * 
+ * @author jbrukh
+ *
+ */
+public interface Table {
 
 	/**
-	 * Returns {@code true} if and only if the table contains the specified state.
+	 * Adds a state to the table.
 	 * 
 	 * @param state
 	 * @return
 	 */
-	public abstract boolean containsState(State state);
-
-	/**
-	 * Returns {@code true} if and only if the table contains the specified state.
-	 * 
-	 * @param symbol
-	 * @return
-	 */
-	public abstract boolean containsSymbol(Character symbol);
-
-	/**
-	 * Return a traverser for this table.
-	 * 
-	 * @return
-	 */
-	public abstract TransitionTableTraverser traverser();
-
-	/**
-	 * Transition.
-	 *  
-	 * @param from
-	 * @param symbol
-	 * @return
-	 */
-	public abstract ImmutableSet<State> transition( State from, Character symbol );
+	public abstract void addState(State state);
 	
 	/**
-	 * Get the states of the table.
+	 * Get the set of states of the table.
 	 * 
 	 * @return
 	 */
 	public abstract ImmutableSet<State> getStates();
-
+	
 	/**
 	 * Get the symbols of the table.
 	 * 
 	 * @return
 	 */
 	public abstract ImmutableSet<Character> getSymbols();
+
+	/**
+	 * Add a transition to the table.
+	 * 
+	 * @param from
+	 * @param symbol
+	 * @param to
+	 */
+	public void addTransition( State from, Character symbol, State to );
+	
+	/**
+	 * Return a traverser for this table.
+	 * 
+	 * @return
+	 */
+	public abstract TableTraverser traverser();
 	
 	/**
 	 * Make a state the initial state.  This will clear any states

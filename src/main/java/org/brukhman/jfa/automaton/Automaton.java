@@ -2,7 +2,8 @@ package org.brukhman.jfa.automaton;
 
 
 /**
- * A finite automaton.
+ * A finite state automaton -- a thing that accepts or rejects a string of
+ * input.
  * 
  * @author jbrukh
  *

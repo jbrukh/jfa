@@ -19,63 +19,15 @@ import com.google.common.collect.Iterators;
  * @author jbrukh
  *
  */
-public final class NFA extends TableAutomaton {
+public final class NFA extends NondeterministicTable implements Automaton {
 
-	// FIELDS //
-	
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param states
-	 */
-	public NFA( Iterator<State> states ) {
-		if ( states != null ) {
-			Iterators.addAll(this.states, states);
-		}
-	}
-	
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param states
-	 */
 	public NFA( State... states ) {
-		this( Iterators.forArray(states) );
+		
 	}
 	
-
 	@Override
 	public boolean compute(String input) {
-		Preconditions.checkNotNull(input);
-		validate();
-		
-		char[] inputArray = input.toCharArray();
-		NondeterministicTransitionTableTraverser traverser = new NondeterministicTransitionTableTraverser(transitions);
-		
-		Set<State> currentStates = traverser.epsilonClosureInitial();
-
-		for ( char inputChar : inputArray ) {
-			currentStates = traverser.transition(currentStates, inputChar);
-		}
-		return Iterables.any( currentStates, State.isFinalPredicate );
-	}
-
-	@Override
-	public ImmutableAutomaton finish() {
-		validate();
-		return super.finish();
-	}
-	
-	/**
-	 * Make sure this machine is valid.
-	 */
-	private final void validate() {
-		Preconditions.checkState( transitions.getInitial() != null, "There is no initial state in the machine.");
-		Preconditions.checkState( !transitions.getFinal().isEmpty(), "No final states -- this machine accepts no language.");
-		Preconditions.checkState(
-				states.containsAll(transitions.getStates()),
-				"Looks like you forgot to add some transitions."
-		);
+		return false;
 	}
 
 }
