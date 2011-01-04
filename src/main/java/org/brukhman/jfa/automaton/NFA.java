@@ -2,6 +2,10 @@ package org.brukhman.jfa.automaton;
 
 import static com.google.common.base.Preconditions.*;
 
+import java.util.Set;
+
+import com.google.common.collect.Iterables;
+
 /**
  * A Nondeterministic Finite Automaton.
  * <p>
@@ -22,15 +26,37 @@ public final class NFA extends NondeterministicTable implements ConstructibleAut
 	 * @param states
 	 */
 	public NFA( State... states ) {
-		checkNotNull(states, "Provide states.");
-		for ( State state : states ) {
-			addState(state);
-		}
+		addStates(states);
 	}
-	
+
 	@Override
-	public boolean compute(String input) {
+	public final boolean compute( String input ) {
+		checkNotNull(input, "Provide some input.");
+		validate();
+
+		char[] inputArray = input.toCharArray();
+		NondeterministicTraverser traverser = traverser();
 		
+		Set<State> currentStates = traverser.epsilonClosureInitial();
+
+		for ( char inputChar : inputArray ) {
+			currentStates = traverser.transition(currentStates, inputChar);
+		}
+		return Iterables.any( currentStates, State.isFinalPredicate );
 	}
+
+
+	/**
+	 * Make sure this machine is valid.
+	 */
+	private final void validate() {
+		checkState( getInitial() != null, "There is no initial state in the machine.");
+		checkState( !getFinal().isEmpty(), "No final states -- this machine accepts no language.");
+		checkState(
+				states.containsAll(table.rowKeySet()),
+				"Looks like you forgot to add some transitions."
+		);
+	}
+
 
 }

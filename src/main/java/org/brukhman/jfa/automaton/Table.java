@@ -20,7 +20,7 @@ public interface Table {
 	 * @param state
 	 * @return
 	 */
-	public abstract void addState(State state);
+	public abstract void addStates(State... state);
 	
 	/**
 	 * Get the set of states of the table.

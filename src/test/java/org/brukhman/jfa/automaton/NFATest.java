@@ -2,6 +2,11 @@ package org.brukhman.jfa.automaton;
 
 import static org.brukhman.jfa.automaton.Symbols.EPSILON;
 
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import junit.framework.TestCase;
 
 
@@ -20,10 +25,16 @@ public class NFATest extends TestCase {
 		d = State.next();
 		o = State.next();
 		h = State.next();
-		
+				
 		// machine
 		nfa = new NFA(s,a,b,e,d,o,h);
+		Set<State> expected = ImmutableSet.of(s,a,b,e,d,o,h);
+		assertEquals( nfa.getStates(), expected );
+		
+		
 		nfa.makeInitial(s);
+		assertEquals( nfa.getInitial(), s );
+			
 		
 		// accept abe*
 		nfa.addTransition(a, 'a', 		b);
@@ -37,6 +48,9 @@ public class NFATest extends TestCase {
 		nfa.addTransition(h, 'h', 		h);
 		nfa.makeFinal(h);
 		
+		expected = ImmutableSet.of(e,h);
+		assertEquals( nfa.getFinal(), expected );
+		
 		// accept either of the above
 		nfa.addTransition(s, EPSILON, 	a);
 		nfa.addTransition(s, EPSILON, 	d);
@@ -45,6 +59,20 @@ public class NFATest extends TestCase {
 		nfa.addTransition(e, EPSILON, s);
 		nfa.addTransition(h, EPSILON, s);
 		
+		ensureStateConsistency();
+		
+	}
+	
+	/**
+	 * Ensures that the internal bookkeeping of final and initial states
+	 * corresponds to those states' settings.
+	 * 
+	 */
+	private void ensureStateConsistency() {
+		Set<State> finalStates = Sets.filter(nfa.getStates(), State.isFinalPredicate );
+		assertEquals( nfa.getFinal(), finalStates );
+		Set<State> initialStates = Sets.filter(nfa.getStates(), State.isInitialPredicate );
+		assertEquals( ImmutableSet.of(nfa.getInitial()), initialStates );
 	}
 	
 	public void testCompute() {

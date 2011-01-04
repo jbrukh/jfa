@@ -68,9 +68,11 @@ abstract class AbstractTable<T> implements Table {
 	}
 
 	@Override
-	public void addState(State state) {
-		checkNotNull(state, "Provide a state.");
-		states.add(state);
+	public void addStates(State... states) {
+		checkNotNull(states, "Provide states.");
+		for ( State state : states ) {
+			if ( state != null ) { this.states.add(state); }
+		}
 	}
 
 	@Override

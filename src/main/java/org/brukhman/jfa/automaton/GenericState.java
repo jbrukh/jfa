@@ -26,6 +26,14 @@ public class GenericState<T> {
 		}
 	};
 	
+	/** Predicate for finding final states. */
+	public final static Predicate<GenericState<?>> isInitialPredicate = new Predicate<GenericState<?>>() {
+		@Override
+		public boolean apply(GenericState<?> state) {
+			return state.isInitial();
+		}
+	};
+	
 	/**
 	 * Create a new instance.
 	 * 

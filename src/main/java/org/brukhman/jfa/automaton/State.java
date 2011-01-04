@@ -15,7 +15,7 @@ public class State extends GenericState<Integer>{
 	 * 
 	 * @param name
 	 */
-	public State( Integer name ) {
+	private State( Integer name ) {
 		super(name);
 	}
 	
