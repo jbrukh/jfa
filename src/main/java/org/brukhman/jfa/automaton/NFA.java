@@ -1,11 +1,6 @@
 package org.brukhman.jfa.automaton;
 
-import java.util.Iterator;
-import java.util.Set;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * A Nondeterministic Finite Automaton.
@@ -19,15 +14,23 @@ import com.google.common.collect.Iterators;
  * @author jbrukh
  *
  */
-public final class NFA extends NondeterministicTable implements Automaton {
+public final class NFA extends NondeterministicTable implements ConstructibleAutomaton {
 
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param states
+	 */
 	public NFA( State... states ) {
-		
+		checkNotNull(states, "Provide states.");
+		for ( State state : states ) {
+			addState(state);
+		}
 	}
 	
 	@Override
 	public boolean compute(String input) {
-		return false;
+		
 	}
 
 }
