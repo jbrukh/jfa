@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 
 /**
@@ -42,6 +43,14 @@ abstract class AbstractTable<T> implements Table {
 		initialState = state;
 		state.setInitial(true);
 	}
+	
+	@Override
+	public void clearInitial() {
+		if ( initialState != null ) {
+			initialState.setInitial(false);
+			initialState = null;
+		}
+	}
 
 	@Override
 	public final State getInitial() {
@@ -69,6 +78,15 @@ abstract class AbstractTable<T> implements Table {
 
 	@Override
 	public void addStates(State... states) {
+		// TODO: FIX THIS
+		checkNotNull(states, "Provide states.");
+		for ( State state : states ) {
+			if ( state != null ) { this.states.add(state); }
+		}
+	}
+	
+	@Override
+	public void addStates( Iterable<State> states ) {
 		checkNotNull(states, "Provide states.");
 		for ( State state : states ) {
 			if ( state != null ) { this.states.add(state); }

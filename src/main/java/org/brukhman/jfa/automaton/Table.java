@@ -23,6 +23,13 @@ public interface Table {
 	public abstract void addStates(State... state);
 	
 	/**
+	 * Adds states to the table.
+	 * 
+	 * @param states
+	 */
+	public abstract void addStates(Iterable<State> states);
+	
+	/**
 	 * Get the set of states of the table.
 	 * 
 	 * @return
@@ -50,7 +57,7 @@ public interface Table {
 	 * 
 	 * @return
 	 */
-	public abstract TableTraverser traverser();
+	public abstract TableTraverser<?> traverser();
 	
 	/**
 	 * Make a state the initial state.  This will clear any states
@@ -59,6 +66,13 @@ public interface Table {
 	 * @param state
 	 */
 	public abstract void makeInitial( State state );
+	
+	/**
+	 * Clear the initial state.
+	 * 
+	 * @param state
+	 */
+	public abstract void clearInitial();
 	
 	/**
 	 * Returns the initial state.

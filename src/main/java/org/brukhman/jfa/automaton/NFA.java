@@ -58,5 +58,10 @@ public final class NFA extends NondeterministicTable implements ConstructibleAut
 		);
 	}
 
+	public final void merge( NFA other ) {
+		this.table.putAll(other.table);
+		other.clearInitial();//whaaa
+		
+	}
 
 }
