@@ -69,10 +69,6 @@ public class NFATest extends TestCase {
 	 * 
 	 */
 	private void ensureStateConsistency() {
-		Set<State> finalStates = Sets.filter(nfa.getStates(), State.isFinalPredicate );
-		assertEquals( nfa.getFinal(), finalStates );
-		Set<State> initialStates = Sets.filter(nfa.getStates(), State.isInitialPredicate );
-		assertEquals( ImmutableSet.of(nfa.getInitial()), initialStates );
 	}
 	
 	public void testCompute() {

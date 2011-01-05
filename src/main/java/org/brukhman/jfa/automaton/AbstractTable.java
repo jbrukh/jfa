@@ -37,17 +37,12 @@ abstract class AbstractTable<T> implements Table {
 	@Override
 	public void makeInitial(State state) {
 		checkNotNull(state, "Provide a state.");
-		if ( initialState!=null ) {
-			initialState.setInitial(false);
-		}
 		initialState = state;
-		state.setInitial(true);
 	}
 	
 	@Override
 	public void clearInitial() {
 		if ( initialState != null ) {
-			initialState.setInitial(false);
 			initialState = null;
 		}
 	}
@@ -61,14 +56,12 @@ abstract class AbstractTable<T> implements Table {
 	public void makeFinal(State state) {
 		checkNotNull(state, "Provide a state.");
 		finalStates.add(state);
-		state.setFinal(true);
 	}
 	
 	@Override
 	public void clearFinal(State state) {
 		checkNotNull(state, "Provide a state.");
 		finalStates.remove( state );
-		state.setFinal(false);
 	}
 
 	@Override
@@ -103,6 +96,10 @@ abstract class AbstractTable<T> implements Table {
 		return ImmutableSet.copyOf( table.columnKeySet() );
 	}
 	
+	com.google.common.collect.Table<State, Character, T>
+	getTable() {
+		return table;
+	}
 	/**
 	 * Transition this table.
 	 * 

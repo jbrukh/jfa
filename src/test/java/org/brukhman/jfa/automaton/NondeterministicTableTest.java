@@ -54,10 +54,6 @@ public class NondeterministicTableTest extends TestCase {
 	 * 
 	 */
 	private void ensureStateConsistency() {
-		Set<State> finalStates = Sets.filter(table.getStates(), State.isFinalPredicate );
-		assertEquals( table.getFinal(), finalStates );
-		Set<State> initialStates = Sets.filter(table.getStates(), State.isInitialPredicate );
-		assertEquals( ImmutableSet.of(table.getInitial()), initialStates );
 	}
 	
 	public void testClearFinal() {

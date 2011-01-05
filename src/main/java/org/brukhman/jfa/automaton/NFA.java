@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.*;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 /**
  * A Nondeterministic Finite Automaton.
@@ -28,6 +29,15 @@ public final class NFA extends NondeterministicTable implements ConstructibleAut
 	public NFA( State... states ) {
 		addStates(states);
 	}
+	
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param states
+	 */
+	public NFA( Iterable<State> states ) {
+		addStates(states);
+	}
 
 	@Override
 	public final boolean compute( String input ) {
@@ -42,7 +52,7 @@ public final class NFA extends NondeterministicTable implements ConstructibleAut
 		for ( char inputChar : inputArray ) {
 			currentStates = traverser.transition(currentStates, inputChar);
 		}
-		return Iterables.any( currentStates, State.isFinalPredicate );
+		return !Sets.intersection(currentStates, finalStates).isEmpty();
 	}
 
 
@@ -56,12 +66,6 @@ public final class NFA extends NondeterministicTable implements ConstructibleAut
 				states.containsAll(table.rowKeySet()),
 				"Looks like you forgot to add some transitions."
 		);
-	}
-
-	public final void merge( NFA other ) {
-		this.table.putAll(other.table);
-		other.clearInitial();//whaaa
-		
 	}
 
 }
