@@ -1,9 +1,15 @@
 package org.brukhman.jfa.automaton;
 
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table.Cell;
 
@@ -19,30 +25,27 @@ public final class Operations {
 	 * @return
 	 */
 	public final static NFA or( NFA one, NFA two ){
-		Set<State> oneStates = one.getStates();
-		Set<State> twoStates = two.getStates();
-		
 		Preconditions.checkState( 
-				Sets.intersection(oneStates, twoStates).isEmpty(),
+				Sets.intersection(one.states, two.states).isEmpty(),
 				"The two NFA's share states!"
 				);
 		
-		Set<State> allStates = Sets.union(oneStates, twoStates);
-		NFA or = new NFA(allStates);
+		Set<State> allStates = Sets.union(one.states, two.states);
+		NFA nfa = new NFA(allStates);
 			
-		or.getTable().putAll(one.getTable());
-		or.getTable().putAll(two.getTable());
+		nfa.table.putAll(one.table);
+		nfa.table.putAll(two.table);
 
-		or.finalStates.addAll(one.finalStates);
-		or.finalStates.addAll(two.finalStates);
+		nfa.finalStates.addAll(one.finalStates);
+		nfa.finalStates.addAll(two.finalStates);
 		
 		State start = State.next();
-		or.addStates(start);
-		or.addTransition(start, Symbols.EPSILON, one.getInitial() );
-		or.addTransition(start, Symbols.EPSILON, two.getInitial() );
-		or.makeInitial(start);
+		nfa.addStates(start);
+		nfa.addTransition(start, Symbols.EPSILON, one.initialState );
+		nfa.addTransition(start, Symbols.EPSILON, two.initialState );
+		nfa.makeInitial(start);
 		
-		return or;
+		return nfa;
 	}
 	
 	/**
@@ -54,47 +57,86 @@ public final class Operations {
 	 * @return
 	 */
 	public final static NFA concat( NFA one, NFA two ) {
-		Set<State> oneStates = one.getStates();
-		Set<State> twoStates = two.getStates();
-		
 		Preconditions.checkState( 
-				Sets.intersection(oneStates, twoStates).isEmpty(),
+				Sets.intersection(one.states, two.states).isEmpty(),
 				"The two NFA's share states!"
 				);
 		
-		Set<State> allStates = Sets.union(oneStates, twoStates);
-		NFA newNFA = new NFA(allStates);
+		Set<State> allStates = Sets.union(one.states, two.states);
+		NFA nfa = new NFA(allStates);
 			
-		newNFA.getTable().putAll(one.getTable());
-		newNFA.getTable().putAll(two.getTable());
-		newNFA.makeInitial( one.initialState );
-		newNFA.finalStates.addAll(two.getFinal());
+		nfa.table.putAll(one.table);
+		nfa.table.putAll(two.table);
+		nfa.makeInitial( one.initialState );
+		nfa.finalStates.addAll(two.finalStates);
 		
-		for ( State finalState : one.getFinal() ) {
-			newNFA.addTransition(finalState, Symbols.EPSILON, two.initialState);
+		for ( State finalState : one.finalStates ) {
+			nfa.addTransition(finalState, Symbols.EPSILON, two.initialState);
 		}
 		
-		return newNFA;
+		return nfa;
 	}
 	
 	/**
 	 * Given an NFA, returns the Kleene closure of that NFA.
 	 * 
-	 * @param nfa
+	 * @param input
 	 * @return
 	 */
-	public final static NFA kleeneStar( NFA nfa ) {
-		Preconditions.checkNotNull(nfa);
-		NFA newNFA = new NFA(nfa.getStates());
-		newNFA.getTable().putAll(nfa.getTable());
-		newNFA.finalStates.addAll(nfa.finalStates);
-		newNFA.finalStates.add(nfa.initialState);  // accept empty string
-		newNFA.makeInitial(nfa.initialState);
+	public final static NFA kleeneStar( NFA input ) {
+		Preconditions.checkNotNull(input);
+		NFA nfa = new NFA(input.states);
+		nfa.table.putAll(input.table);
+		nfa.finalStates.addAll(input.finalStates);
+		nfa.finalStates.add(input.initialState);  // accept empty string
+		nfa.makeInitial(input.initialState);
 		
-		for ( State finalState : nfa.finalStates ) {
-			newNFA.addTransition(finalState, Symbols.EPSILON, nfa.initialState);
+		for ( State finalState : input.finalStates ) {
+			nfa.addTransition(finalState, Symbols.EPSILON, input.initialState);
 		}
 		
-		return newNFA;
+		return nfa;
+	}
+	
+	public final static NFA toDfa( NFA input ) {
+		Preconditions.checkNotNull(input);
+		input.validate();
+		
+		Set<Character> alphabet = Sets.newHashSet();
+		alphabet.addAll(input.getSymbols());
+		alphabet.remove(Symbols.EPSILON);
+		
+		Queue<MultiState> queue = Lists.newLinkedList();
+		BiMap<MultiState,State> newStates = HashBiMap.create();
+		
+		MultiState current = MultiState.of(input.traverser().epsilonClosureInitial());
+		State start = State.next();
+		newStates.put(current,start);
+		queue.add(current);
+		
+		NFA dfa = new NFA(start);
+		dfa.makeInitial(start);
+		
+		while ( !queue.isEmpty() ) {
+			current = queue.remove();
+			for ( Character symbol : alphabet ) {
+				MultiState next = MultiState.of(
+										input.traverser().transition(current.getName(), symbol)
+								  );
+				
+				if ( !newStates.containsKey(next) ) {
+					State state = State.next();
+					newStates.put(next,state);
+					queue.add(next);
+					dfa.addStates(state);
+					if ( !Sets.intersection(next.getName(),input.finalStates).isEmpty() ) {
+						dfa.makeFinal(state);
+					}
+				}
+				
+				dfa.addTransition(newStates.get(current), symbol, newStates.get(next));		
+			}
+		}
+		return dfa;
 	}
 }

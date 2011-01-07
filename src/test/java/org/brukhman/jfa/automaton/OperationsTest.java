@@ -90,6 +90,37 @@ public class OperationsTest {
 		assertFalse(dogOrBookStar.compute("doggie"));
 		assertFalse(dogOrBookStar.compute("bookie"));
 		assertFalse(dogOrBookStar.compute("jake"));
-		
 	}
+	
+	@Test
+	public void testToDfa() {
+		NFA aOrB = Operations.or(one,two);
+		NFA dfa = Operations.toDfa(aOrB);
+		assertNotNull(dfa);
+		assertFalse(dfa.compute(""));
+		assertTrue(dfa.compute("a"));
+		assertTrue(dfa.compute("b"));
+		assertFalse(dfa.compute("ab"));
+		assertFalse(dfa.compute("ba"));
+		assertFalse(dfa.compute("poop"));
+		assertFalse(dfa.compute("hello"));
+		assertFalse(dfa.compute("doggie"));
+	}
+	
+	@Test
+	public void testNfaSpeed() {
+		NFA nfa = Operations.or(one,two);
+		for ( int i = 0; i <100000; i++ ) {
+			nfa.compute("hello world");
+		}
+	}
+	
+	@Test
+	public void testDfaSpeed() {
+		NFA dfa = Operations.toDfa(Operations.or(one,two));
+		for ( int i = 0; i <100000; i++ ) {
+			dfa.compute("hello world");
+		}
+	}
+
 }

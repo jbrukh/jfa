@@ -58,8 +58,12 @@ public final class NFA extends NondeterministicTable implements ConstructibleAut
 
 	/**
 	 * Make sure this machine is valid.
+	 * 
+	 * @throws IllegalStateException if the machine either (i) has no initial
+	 * 								 state, (ii) has no final states, or (iii)
+	 * 								 has orphaned states with no transitions
 	 */
-	private final void validate() {
+	protected final void validate() {
 		checkState( getInitial() != null, "There is no initial state in the machine.");
 		checkState( !getFinal().isEmpty(), "No final states -- this machine accepts no language.");
 		checkState(
